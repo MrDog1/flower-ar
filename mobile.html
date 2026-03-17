@@ -30,7 +30,7 @@
     <a-scene
       vr-mode-ui="enabled: false;"
       embedded
-      renderer="logarithmicDepthBuffer: true; precision: medium;"
+      renderer="alpha: true; logarithmicDepthBuffer: true; precision: medium;"
       arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
     >
       <a-assets timeout="15000">
@@ -91,7 +91,10 @@
 
       const fitArViewport = () => {
         const video = document.querySelector("video");
-        const drawables = [video, ...document.querySelectorAll("canvas")].filter(Boolean);
+        const sceneCanvas =
+          document.querySelector("canvas.a-canvas") ||
+          document.querySelector("canvas[data-aframe-canvas]");
+        const drawables = [video, sceneCanvas].filter(Boolean);
         if (!drawables.length) {
           return;
         }
@@ -124,8 +127,7 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "contain";
-          element.style.backgroundColor = "#000";
+          element.style.objectFit = "cover";
         });
       };
 
@@ -141,7 +143,7 @@
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at hiro.png. This phone page uses a wider camera view."
+            "AR.js camera is live. Point it at hiro.png."
           );
         }
       };
