@@ -64,11 +64,11 @@
         let targetHeight;
 
         if (sourceAspect > viewportAspect) {
-          targetHeight = window.innerHeight;
-          targetWidth = targetHeight * sourceAspect;
-        } else {
           targetWidth = window.innerWidth;
           targetHeight = targetWidth / sourceAspect;
+        } else {
+          targetHeight = window.innerHeight;
+          targetWidth = targetHeight * sourceAspect;
         }
 
         const left = (window.innerWidth - targetWidth) / 2;
@@ -82,8 +82,55 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "cover";
+          element.style.objectFit = "contain";
+          element.style.backgroundColor = "#000";
         });
+      };
+
+      let zoomAdjusted = false;
+      const trySetMinimumZoom = () => {
+        if (zoomAdjusted) {
+          return;
+        }
+
+        const video = document.querySelector("video");
+        const stream = video && video.srcObject;
+        const track =
+          stream && stream.getVideoTracks && stream.getVideoTracks().length
+            ? stream.getVideoTracks()[0]
+            : null;
+
+        if (!track || !track.getCapabilities || !track.applyConstraints) {
+          zoomAdjusted = true;
+          return;
+        }
+
+        const capabilities = track.getCapabilities();
+        if (!capabilities.zoom || typeof capabilities.zoom.min !== "number") {
+          zoomAdjusted = true;
+          return;
+        }
+
+        zoomAdjusted = true;
+        track
+          .applyConstraints({
+            advanced: [
+              {
+                zoom: capabilities.zoom.min
+              }
+            ]
+          })
+          .then(() => {
+            setStatus(
+              "Camera switched to the widest available view. Test with /flower-ar/hiro.png."
+            );
+            fitArViewport();
+          })
+          .catch(() => {
+            setStatus(
+              "Using the default camera view. If framing is still tight, rotate the phone sideways."
+            );
+          });
       };
 
       let videoReported = false;
@@ -94,11 +141,12 @@
         }
 
         fitArViewport();
+        trySetMinimumZoom();
 
         if (!videoReported && video.readyState >= 2) {
           videoReported = true;
           setStatus(
-            "AR.js camera is live. Test with the Hiro marker at /flower-ar/hiro.png. If framing feels tight, rotate the phone sideways."
+            "AR.js camera is live. Test with the Hiro marker at /flower-ar/hiro.png. The full camera frame should stay visible."
           );
         }
       }, 800);

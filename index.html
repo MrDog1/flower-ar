@@ -107,11 +107,11 @@
         let targetHeight;
 
         if (sourceAspect > viewportAspect) {
-          targetHeight = window.innerHeight;
-          targetWidth = targetHeight * sourceAspect;
-        } else {
           targetWidth = window.innerWidth;
           targetHeight = targetWidth / sourceAspect;
+        } else {
+          targetHeight = window.innerHeight;
+          targetWidth = targetHeight * sourceAspect;
         }
 
         const left = (window.innerWidth - targetWidth) / 2;
@@ -125,8 +125,55 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "cover";
+          element.style.objectFit = "contain";
+          element.style.backgroundColor = "#000";
         });
+      };
+
+      let zoomAdjusted = false;
+      const trySetMinimumZoom = () => {
+        if (zoomAdjusted) {
+          return;
+        }
+
+        const video = document.querySelector("video");
+        const stream = video && video.srcObject;
+        const track =
+          stream && stream.getVideoTracks && stream.getVideoTracks().length
+            ? stream.getVideoTracks()[0]
+            : null;
+
+        if (!track || !track.getCapabilities || !track.applyConstraints) {
+          zoomAdjusted = true;
+          return;
+        }
+
+        const capabilities = track.getCapabilities();
+        if (!capabilities.zoom || typeof capabilities.zoom.min !== "number") {
+          zoomAdjusted = true;
+          return;
+        }
+
+        zoomAdjusted = true;
+        track
+          .applyConstraints({
+            advanced: [
+              {
+                zoom: capabilities.zoom.min
+              }
+            ]
+          })
+          .then(() => {
+            setStatus(
+              "Camera switched to the widest available view. Point it at pattern-marker.png."
+            );
+            fitArViewport();
+          })
+          .catch(() => {
+            setStatus(
+              "Using the default camera view. If the marker is still too large, rotate the phone sideways."
+            );
+          });
       };
 
       let videoReadyMessageShown = false;
@@ -137,11 +184,12 @@
         }
 
         fitArViewport();
+        trySetMinimumZoom();
 
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at pattern-marker.png. If the framing still feels tight, rotate the phone sideways."
+            "AR.js camera is live. Point it at pattern-marker.png. The full camera frame should stay visible."
           );
         }
       };
