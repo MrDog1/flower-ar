@@ -49,19 +49,19 @@
       >
         <a-image
           src="#message-card"
-          width="1.18"
-          height="0.59"
-          position="0 0.02 0.3"
-          rotation="-90 0 0"
+          width="1.35"
+          height="0.68"
+          position="0 0.55 0.08"
+          rotation="-55 0 0"
           material="transparent: true; alphaTest: 0.01"
         ></a-image>
 
         <a-entity
           id="bouquet"
           gltf-model="#bouquet-model"
-          position="0 -0.02 -0.02"
-          rotation="-90 0 0"
-          scale="0.42 0.42 0.42"
+          position="0 0.2 -0.05"
+          rotation="-65 0 0"
+          scale="0.58 0.58 0.58"
         ></a-entity>
 
         <a-box
@@ -124,7 +124,8 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "cover";
+          element.style.objectFit = "contain";
+          element.style.backgroundColor = "#000";
         });
       };
 
@@ -140,7 +141,7 @@
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at hiro.png. This marker is more reliable on phones."
+            "AR.js camera is live. Point it at hiro.png. This phone page uses a wider camera view."
           );
         }
       };
@@ -156,7 +157,7 @@
       window.setInterval(probeVideo, 800);
 
       marker.addEventListener("markerFound", () => {
-        setStatus("Hiro marker detected.");
+        setStatus("Hiro marker detected. Bouquet and message should appear above the marker.");
       });
 
       marker.addEventListener("markerLost", () => {
