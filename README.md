@@ -6,7 +6,8 @@ Marker-based WebAR app built with A-Frame and AR.js for GitHub Pages deployment.
 
 - `index.html`: main AR scene.
 - `marker.patt`: pattern file used by AR.js.
-- `marker.png`: printable marker image for camera detection.
+- `marker.png`: source pattern image used to generate the marker.
+- `pattern-marker.png`: printable marker image with the required black border for camera detection.
 - `message.png`: Japanese message card shown above the marker.
 - `bouquet.gltf`: placeholder bouquet model. Replace it with a real bouquet asset later if needed.
 
