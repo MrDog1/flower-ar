@@ -67,7 +67,7 @@
       arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
     >
       <a-assets timeout="15000">
-        <img id="message-card" src="./message.png" alt="Message card">
+        <img id="mobile-card" src="./mobile-card.png" alt="Bouquet and message card">
       </a-assets>
 
       <a-marker
@@ -80,120 +80,17 @@
         smoothThreshold="2"
       >
         <a-plane
-          color="#fff5f7"
-          width="1.55"
-          height="0.92"
-          position="0 0.02 0.28"
+          id="mobile-card-plane"
+          width="1.38"
+          height="1.38"
+          position="0 0.08 0.02"
           rotation="-90 0 0"
-          material="transparent: true; opacity: 0.55; side: double"
+          material="src: #mobile-card; shader: flat; side: double; transparent: false"
         ></a-plane>
-
-        <a-image
-          src="#message-card"
-          width="1.1"
-          height="0.56"
-          position="0 0.03 0.24"
-          rotation="-90 0 0"
-          material="transparent: true; alphaTest: 0.01; side: double"
-        ></a-image>
-
-        <a-entity
-          id="bouquet"
-          position="0 0.045 -0.14"
-          rotation="-90 0 0"
-          scale="0.9 0.9 0.9"
-        >
-          <a-triangle
-            vertex-a="-0.42 -0.18 0"
-            vertex-b="0 -0.62 0"
-            vertex-c="0.02 0.08 0"
-            material="shader: flat; color: #f7ddd7; side: double"
-          ></a-triangle>
-          <a-triangle
-            vertex-a="0.42 -0.18 0"
-            vertex-b="0 -0.62 0"
-            vertex-c="-0.02 0.08 0"
-            material="shader: flat; color: #faeed2; side: double"
-          ></a-triangle>
-          <a-plane
-            width="0.14"
-            height="0.46"
-            position="-0.1 -0.2 0.01"
-            material="shader: flat; color: #5f9d54; side: double"
-          ></a-plane>
-          <a-plane
-            width="0.14"
-            height="0.52"
-            position="0 -0.18 0.01"
-            material="shader: flat; color: #588d4e; side: double"
-          ></a-plane>
-          <a-plane
-            width="0.14"
-            height="0.46"
-            position="0.1 -0.2 0.01"
-            material="shader: flat; color: #5f9d54; side: double"
-          ></a-plane>
-          <a-circle
-            radius="0.16"
-            position="-0.2 0.14 0.03"
-            material="shader: flat; color: #f38cab; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.055"
-            position="-0.2 0.14 0.04"
-            material="shader: flat; color: #ffe182; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.19"
-            position="0 0.24 0.03"
-            material="shader: flat; color: #e85f73; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.06"
-            position="0 0.24 0.04"
-            material="shader: flat; color: #ffe182; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.16"
-            position="0.2 0.14 0.03"
-            material="shader: flat; color: #f59c7e; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.055"
-            position="0.2 0.14 0.04"
-            material="shader: flat; color: #fff0a8; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.11"
-            position="-0.28 0.02 0.025"
-            material="shader: flat; color: #ffd36f; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.04"
-            position="-0.28 0.02 0.035"
-            material="shader: flat; color: #fff3b7; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.095"
-            position="0.12 -0.01 0.025"
-            material="shader: flat; color: #f6a7c1; side: double"
-          ></a-circle>
-          <a-circle
-            radius="0.032"
-            position="0.12 -0.01 0.035"
-            material="shader: flat; color: #fff0a8; side: double"
-          ></a-circle>
-          <a-plane
-            width="0.12"
-            height="0.28"
-            position="0 -0.46 0.03"
-            material="shader: flat; color: #d85f86; side: double"
-          ></a-plane>
-        </a-entity>
 
         <a-box
           id="fallback-box"
-          position="0 0.08 -0.14"
+          position="0 0.08 0.02"
           rotation="0 45 0"
           color="#4CC3D9"
           depth="0.22"
@@ -209,6 +106,7 @@
     <script>
       const statusElement = document.getElementById("status");
       const marker = document.getElementById("marker");
+      const mobileCard = document.getElementById("mobile-card");
       const fallbackBox = document.getElementById("fallback-box");
 
       const setStatus = (message) => {
@@ -313,6 +211,10 @@
 
       marker.addEventListener("markerLost", () => {
         setStatus("Marker lost. Bring hiro.png back into view.");
+      });
+
+      mobileCard.addEventListener("load", () => {
+        setStatus("AR.js camera is live. Point it at hiro.png.");
       });
 
       window.addEventListener("camera-error", () => {
