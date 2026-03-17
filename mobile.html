@@ -47,31 +47,37 @@
         smoothTolerance="0.01"
         smoothThreshold="2"
       >
+        <a-plane
+          color="#fff5f7"
+          width="1.55"
+          height="0.92"
+          position="0 0.92 -0.02"
+          material="transparent: true; opacity: 0.38; side: double"
+        ></a-plane>
+
         <a-image
           src="#message-card"
-          width="1.35"
-          height="0.68"
-          position="0 0.55 0.08"
-          rotation="-55 0 0"
-          material="transparent: true; alphaTest: 0.01"
+          width="1.25"
+          height="0.63"
+          position="0 0.95 0.02"
+          material="transparent: true; alphaTest: 0.01; side: double"
         ></a-image>
 
         <a-entity
           id="bouquet"
           gltf-model="#bouquet-model"
-          position="0 0.2 -0.05"
-          rotation="-65 0 0"
-          scale="0.58 0.58 0.58"
+          position="0 0.34 0.03"
+          scale="0.72 0.72 0.72"
         ></a-entity>
 
         <a-box
           id="fallback-box"
-          position="0 0.15 0"
+          position="0 0.34 0.03"
           rotation="0 45 0"
           color="#4CC3D9"
-          depth="0.2"
-          height="0.2"
-          width="0.2"
+          depth="0.22"
+          height="0.22"
+          width="0.22"
           visible="false"
         ></a-box>
       </a-marker>
@@ -82,6 +88,7 @@
     <script>
       const statusElement = document.getElementById("status");
       const marker = document.getElementById("marker");
+      const bouquet = document.getElementById("bouquet");
       const modelAsset = document.getElementById("bouquet-model");
       const fallbackBox = document.getElementById("fallback-box");
 
@@ -169,6 +176,10 @@
       modelAsset.addEventListener("error", () => {
         fallbackBox.setAttribute("visible", "true");
         setStatus("Bouquet model failed to load, showing a debug box instead.");
+      });
+
+      bouquet.addEventListener("model-loaded", () => {
+        setStatus("Hiro marker detected. Bouquet model loaded.");
       });
 
       window.addEventListener("camera-error", () => {
