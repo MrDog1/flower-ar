@@ -9,14 +9,14 @@ Build and publish a marker-based WebAR app that shows a bouquet model and a Japa
 - GitHub repository: `https://github.com/MrDog1/flower-ar.git`
 
 # Current state
-- The folder already contains `marker.patt` and `marker.png`.
+- The folder already contains `markers/custom-marker.patt` and `markers/custom-marker-source.png`.
 - The app should keep Japanese text as an image asset instead of rendering it with A-Frame text components.
 - The app should be deployable to GitHub Pages from the `main` branch root.
 
 # Requirements
 1. Create a minimal `index.html` using A-Frame and AR.js marker tracking from pinned CDN URLs.
 2. Use `<a-scene embedded arjs="trackingMethod: best; sourceType: webcam; patternRatio: 0.8;">`.
-3. Use `<a-marker type="pattern" url="./marker.patt">`.
+3. Use `<a-marker type="pattern" url="../../markers/custom-marker.patt">` or the equivalent relative path in the target page.
 4. Display these assets on the marker:
    - A local image asset for the Japanese message
    - A local bouquet `.gltf` or `.glb` model
@@ -29,10 +29,10 @@ Build and publish a marker-based WebAR app that shows a bouquet model and a Japa
 8. If the remote already has unrelated history, do not force-push. Report the blocker clearly instead.
 
 # Assets to keep or create
-- `marker.patt`
-- `marker.png`
-- `message.png`
-- `bouquet.gltf` or `bouquet.glb`
+- `markers/custom-marker.patt`
+- `markers/custom-marker-source.png`
+- `production/legacy/legacy-message-card.png`
+- `production/legacy/legacy-bouquet.gltf` or `bouquet.glb`
 - `index.html`
 - `README.md`
 

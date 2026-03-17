@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Flower Bouquet WebAR Mobile</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <style>
+      :root {
+        --app-width: 100vw;
+        --app-height: 100dvh;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        overscroll-behavior: none;
+      }
+
+      body {
+        position: fixed;
+        inset: 0;
+        width: var(--app-width);
+        height: var(--app-height);
+      }
+
+      #status {
+        top: calc(env(safe-area-inset-top, 0px) + 12px);
+        left: calc(env(safe-area-inset-left, 0px) + 12px);
+        right: calc(env(safe-area-inset-right, 0px) + 12px);
+      }
+
+      a-scene {
+        position: fixed !important;
+        inset: 0 !important;
+        width: var(--app-width) !important;
+        height: var(--app-height) !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="status"
+      style="
+        position: fixed;
+        z-index: 20;
+        max-width: 420px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(255, 251, 252, 0.92);
+        color: #45222c;
+        font: 14px/1.45 'Segoe UI', 'Yu Gothic UI', sans-serif;
+      "
+    >
+      Waiting for AR.js camera...
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: false;"
+      embedded
+      renderer="alpha: true; logarithmicDepthBuffer: true; precision: medium;"
+      arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false; patternRatio: 0.8;"
+    >
+      <a-assets timeout="15000">
+        <canvas id="mobile-card-canvas" width="1024" height="1024"></canvas>
+      </a-assets>
+
+      <a-marker
+        id="marker"
+        type="pattern"
+        url="../../markers/custom-marker.patt"
+        emitevents="true"
+        smooth="true"
+        smoothCount="5"
+        smoothTolerance="0.01"
+        smoothThreshold="2"
+      >
+        <a-plane
+          id="mobile-card-plane"
+          width="1.38"
+          height="1.38"
+          position="0 0.08 0.02"
+          rotation="-90 0 0"
+          material="src: #mobile-card-canvas; shader: flat; side: double; transparent: false"
+        ></a-plane>
+
+        <a-box
+          id="fallback-box"
+          position="0 0.08 0.02"
+          rotation="0 45 0"
+          color="#4CC3D9"
+          depth="0.22"
+          height="0.22"
+          width="0.22"
+          visible="false"
+        ></a-box>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      const statusElement = document.getElementById("status");
+      const marker = document.getElementById("marker");
+      const mobileCardCanvas = document.getElementById("mobile-card-canvas");
+      const mobileCardPlane = document.getElementById("mobile-card-plane");
+      const fallbackBox = document.getElementById("fallback-box");
+
+      const setStatus = (message) => {
+        statusElement.textContent = message;
+      };
+
+      const refreshCardTexture = () => {
+        const materialComponent = mobileCardPlane.components.material;
+        if (!materialComponent || !materialComponent.material || !materialComponent.material.map) {
+          return;
+        }
+
+        materialComponent.material.map.needsUpdate = true;
+      };
+
+      const drawFlower = (context, centerX, centerY, petalColor, centerColor, radius) => {
+        context.fillStyle = petalColor;
+        [
+          [0, -radius],
+          [radius, 0],
+          [0, radius],
+          [-radius, 0],
+          [radius * 0.72, -radius * 0.72],
+          [radius * 0.72, radius * 0.72],
+          [-radius * 0.72, radius * 0.72],
+          [-radius * 0.72, -radius * 0.72]
+        ].forEach(([x, y]) => {
+          context.beginPath();
+          context.arc(centerX + x, centerY + y, radius * 0.58, 0, Math.PI * 2);
+          context.fill();
+        });
+
+        context.fillStyle = centerColor;
+        context.beginPath();
+        context.arc(centerX, centerY, radius * 0.46, 0, Math.PI * 2);
+        context.fill();
+      };
+
+      const drawMobileCard = () => {
+        const context = mobileCardCanvas.getContext("2d");
+        if (!context) {
+          fallbackBox.setAttribute("visible", "true");
+          setStatus("Canvas drawing failed, showing a fallback box instead.");
+          return;
+        }
+
+        context.clearRect(0, 0, 1024, 1024);
+        context.fillStyle = "#fff9f5";
+        context.fillRect(0, 0, 1024, 1024);
+
+        context.strokeStyle = "#d36a8a";
+        context.lineWidth = 18;
+        context.strokeRect(28, 28, 968, 968);
+
+        context.fillStyle = "#f7ddd7";
+        context.beginPath();
+        context.moveTo(250, 560);
+        context.lineTo(512, 220);
+        context.lineTo(610, 650);
+        context.closePath();
+        context.fill();
+
+        context.fillStyle = "#faeed2";
+        context.beginPath();
+        context.moveTo(774, 560);
+        context.lineTo(512, 220);
+        context.lineTo(414, 650);
+        context.closePath();
+        context.fill();
+
+        context.fillStyle = "#588d4e";
+        context.fillRect(470, 380, 24, 260);
+        context.fillRect(500, 350, 24, 290);
+        context.fillRect(530, 380, 24, 260);
+
+        context.fillStyle = "#76b56f";
+        context.beginPath();
+        context.ellipse(420, 420, 70, 30, -0.4, 0, Math.PI * 2);
+        context.fill();
+        context.beginPath();
+        context.ellipse(604, 420, 70, 30, 0.4, 0, Math.PI * 2);
+        context.fill();
+
+        drawFlower(context, 355, 330, "#f38cab", "#ffe182", 66);
+        drawFlower(context, 512, 250, "#e85f73", "#ffe182", 78);
+        drawFlower(context, 670, 330, "#f59c7e", "#fff0a8", 66);
+        drawFlower(context, 300, 470, "#ffd36f", "#fff3b7", 42);
+        drawFlower(context, 610, 490, "#f6a7c1", "#fff0a8", 36);
+
+        context.fillStyle = "#d85f86";
+        context.fillRect(478, 620, 68, 122);
+
+        context.fillStyle = "#fff6f8";
+        context.fillRect(108, 726, 808, 194);
+
+        context.strokeStyle = "#e6a0b7";
+        context.lineWidth = 6;
+        context.beginPath();
+        context.moveTo(148, 774);
+        context.lineTo(876, 774);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(148, 884);
+        context.lineTo(876, 884);
+        context.stroke();
+
+        context.fillStyle = "#4d2a35";
+        context.textAlign = "center";
+        context.font = "bold 56px 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif";
+        context.fillText("杉谷先生", 512, 832);
+        context.font = "42px 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif";
+        context.fillText("1年間お疲れ様でした。", 512, 895);
+        context.fillText("お互いがんばりましょう！", 512, 950);
+
+        refreshCardTexture();
+      };
+
+      const getViewportRect = () => {
+        const viewport = window.visualViewport;
+        if (viewport) {
+          return {
+            width: Math.round(viewport.width),
+            height: Math.round(viewport.height),
+            left: Math.round(viewport.offsetLeft),
+            top: Math.round(viewport.offsetTop)
+          };
+        }
+
+        return {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          left: 0,
+          top: 0
+        };
+      };
+
+      const syncRootViewport = () => {
+        const viewport = getViewportRect();
+        document.documentElement.style.setProperty("--app-width", `${viewport.width}px`);
+        document.documentElement.style.setProperty("--app-height", `${viewport.height}px`);
+        document.body.style.width = `${viewport.width}px`;
+        document.body.style.height = `${viewport.height}px`;
+        document.body.style.left = `${viewport.left}px`;
+        document.body.style.top = `${viewport.top}px`;
+        return viewport;
+      };
+
+      const fitDrawable = (element, viewport, objectFit, zIndex, backgroundColor) => {
+        if (!element) {
+          return;
+        }
+
+        element.style.position = "fixed";
+        element.style.left = `${viewport.left}px`;
+        element.style.top = `${viewport.top}px`;
+        element.style.width = `${viewport.width}px`;
+        element.style.height = `${viewport.height}px`;
+        element.style.marginLeft = "0";
+        element.style.marginTop = "0";
+        element.style.right = "auto";
+        element.style.bottom = "auto";
+        element.style.transform = "none";
+        element.style.objectFit = objectFit;
+        element.style.pointerEvents = "none";
+        element.style.zIndex = zIndex;
+        element.style.backgroundColor = backgroundColor;
+      };
+
+      const fitArViewport = () => {
+        const viewport = syncRootViewport();
+        const video = document.querySelector("video");
+        const sceneCanvas =
+          document.querySelector("canvas.a-canvas") ||
+          document.querySelector("canvas[data-aframe-canvas]");
+        fitDrawable(video, viewport, "contain", "-2", "#000");
+        fitDrawable(sceneCanvas, viewport, "contain", "-1", "transparent");
+      };
+
+      let videoReadyMessageShown = false;
+      const probeVideo = () => {
+        const video = document.querySelector("video");
+        if (!video) {
+          return;
+        }
+
+        fitArViewport();
+
+        if (!videoReadyMessageShown && video.readyState >= 2) {
+          videoReadyMessageShown = true;
+          setStatus(
+            "AR.js camera is live. Point it at markers/custom-marker-print.png."
+          );
+        }
+      };
+
+      window.addEventListener("load", () => {
+        setStatus("Requesting AR.js camera...");
+        drawMobileCard();
+        fitArViewport();
+      });
+
+      window.addEventListener("resize", fitArViewport);
+      window.addEventListener("orientationchange", fitArViewport);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", fitArViewport);
+        window.visualViewport.addEventListener("scroll", fitArViewport);
+      }
+
+      window.setInterval(probeVideo, 800);
+
+      marker.addEventListener("markerFound", () => {
+        setStatus("Marker detected. Bouquet and message should appear above the marker.");
+      });
+
+      marker.addEventListener("markerLost", () => {
+        setStatus("Marker lost. Bring markers/custom-marker-print.png back into view.");
+      });
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(drawMobileCard);
+      }
+
+      if (mobileCardPlane.hasLoaded) {
+        drawMobileCard();
+      } else {
+        mobileCardPlane.addEventListener("loaded", drawMobileCard, { once: true });
+      }
+
+      window.addEventListener("camera-error", () => {
+        setStatus("AR.js camera failed. Reload the page and allow camera access.");
+      });
+    </script>
+  </body>
+</html>

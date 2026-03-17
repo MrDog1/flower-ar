@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <rect width="1024" height="512" fill="none"/>
+  <rect x="16" y="24" width="992" height="464" rx="42" fill="#fff7f8"/>
+  <rect x="16" y="24" width="992" height="464" rx="42" fill="none" stroke="#d96b94" stroke-width="10"/>
+  <line x1="112" y1="112" x2="912" y2="112" stroke="#d96b94" stroke-width="4"/>
+  <line x1="112" y1="408" x2="912" y2="408" stroke="#d96b94" stroke-width="4"/>
+  <text x="512" y="186" text-anchor="middle" fill="#4d2a35" font-size="84" font-weight="700" font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif">&#26441;&#35895;&#20808;&#29983;&#65281;</text>
+  <text x="512" y="280" text-anchor="middle" fill="#4d2a35" font-size="70" font-weight="700" font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif">1&#24180;&#38291;&#12362;&#30130;&#12428;&#27096;&#65281;</text>
+  <text x="512" y="370" text-anchor="middle" fill="#765766" font-size="62" font-weight="700" font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif">&#21029;&#12293;&#12398;&#22580;&#25152;&#12391;&#12418;&#38929;&#24373;&#12429;&#12358;&#12394;&#65281;</text>
+</svg>

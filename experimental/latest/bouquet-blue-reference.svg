@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bluePetal" cx="45%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#dff0fb"/>
+      <stop offset="58%" stop-color="#7bb7ea"/>
+      <stop offset="100%" stop-color="#2f6ea9"/>
+    </radialGradient>
+    <radialGradient id="blueSoftPetal" cx="50%" cy="35%" r="72%">
+      <stop offset="0%" stop-color="#eaf6ff"/>
+      <stop offset="62%" stop-color="#9dd0f2"/>
+      <stop offset="100%" stop-color="#4d86bc"/>
+    </radialGradient>
+    <radialGradient id="whitePetal" cx="48%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#f4efe8"/>
+      <stop offset="100%" stop-color="#d8d1c9"/>
+    </radialGradient>
+    <linearGradient id="leafFill" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#d7ecfb"/>
+      <stop offset="100%" stop-color="#2b689c"/>
+    </linearGradient>
+    <linearGradient id="stemFill" x1="0%" x2="100%">
+      <stop offset="0%" stop-color="#8c8f92"/>
+      <stop offset="100%" stop-color="#cfd5d8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="none"/>
+
+  <g stroke="#cfd8dd" stroke-width="8" stroke-linecap="round">
+    <path d="M188 204 L432 486"/>
+    <path d="M328 112 L520 446"/>
+    <path d="M522 136 L522 456"/>
+    <path d="M710 110 L580 446"/>
+    <path d="M862 196 L620 486"/>
+    <path d="M268 734 L506 522"/>
+    <path d="M766 724 L560 514"/>
+  </g>
+
+  <g fill="url(#leafFill)" opacity="0.98">
+    <ellipse cx="252" cy="292" rx="24" ry="74" transform="rotate(-44 252 292)"/>
+    <ellipse cx="308" cy="254" rx="22" ry="64" transform="rotate(-14 308 254)"/>
+    <ellipse cx="360" cy="224" rx="22" ry="60" transform="rotate(-28 360 224)"/>
+    <ellipse cx="450" cy="200" rx="20" ry="56" transform="rotate(12 450 200)"/>
+    <ellipse cx="612" cy="204" rx="20" ry="56" transform="rotate(-8 612 204)"/>
+    <ellipse cx="684" cy="240" rx="22" ry="62" transform="rotate(24 684 240)"/>
+    <ellipse cx="760" cy="292" rx="24" ry="76" transform="rotate(40 760 292)"/>
+    <ellipse cx="810" cy="396" rx="24" ry="72" transform="rotate(38 810 396)"/>
+    <ellipse cx="728" cy="470" rx="24" ry="80" transform="rotate(46 728 470)"/>
+    <ellipse cx="650" cy="560" rx="26" ry="82" transform="rotate(58 650 560)"/>
+    <ellipse cx="410" cy="678" rx="28" ry="88" transform="rotate(-18 410 678)"/>
+    <ellipse cx="332" cy="640" rx="26" ry="84" transform="rotate(-36 332 640)"/>
+  </g>
+
+  <g transform="translate(324 426)">
+    <ellipse cx="-92" cy="-18" rx="78" ry="118" fill="url(#bluePetal)" transform="rotate(-40 -92 -18)"/>
+    <ellipse cx="-12" cy="-72" rx="86" ry="122" fill="url(#bluePetal)" transform="rotate(-10 -12 -72)"/>
+    <ellipse cx="80" cy="-28" rx="78" ry="118" fill="url(#bluePetal)" transform="rotate(28 80 -28)"/>
+    <ellipse cx="98" cy="72" rx="70" ry="102" fill="url(#bluePetal)" transform="rotate(58 98 72)"/>
+    <ellipse cx="-28" cy="110" rx="80" ry="118" fill="url(#bluePetal)" transform="rotate(16 -28 110)"/>
+    <ellipse cx="-126" cy="70" rx="72" ry="104" fill="url(#bluePetal)" transform="rotate(-68 -126 70)"/>
+    <circle r="134" fill="url(#bluePetal)"/>
+    <circle r="84" fill="none" stroke="#4f89be" stroke-width="14" opacity="0.42"/>
+    <circle r="18" fill="#ecf8ff"/>
+  </g>
+
+  <g transform="translate(520 538)">
+    <ellipse cx="-132" cy="-12" rx="82" ry="112" fill="url(#blueSoftPetal)" transform="rotate(-48 -132 -12)"/>
+    <ellipse cx="-56" cy="-96" rx="90" ry="128" fill="url(#blueSoftPetal)" transform="rotate(-18 -56 -96)"/>
+    <ellipse cx="58" cy="-112" rx="94" ry="134" fill="url(#blueSoftPetal)" transform="rotate(18 58 -112)"/>
+    <ellipse cx="146" cy="-26" rx="84" ry="120" fill="url(#blueSoftPetal)" transform="rotate(52 146 -26)"/>
+    <ellipse cx="118" cy="92" rx="82" ry="116" fill="url(#blueSoftPetal)" transform="rotate(72 118 92)"/>
+    <ellipse cx="-6" cy="142" rx="94" ry="132" fill="url(#blueSoftPetal)" transform="rotate(12 -6 142)"/>
+    <ellipse cx="-124" cy="96" rx="82" ry="116" fill="url(#blueSoftPetal)" transform="rotate(-58 -124 96)"/>
+    <circle r="128" fill="none" stroke="#8ab9e0" stroke-width="18" opacity="0.5"/>
+    <circle r="84" fill="none" stroke="#6f9fcb" stroke-width="16" opacity="0.48"/>
+    <circle r="44" fill="none" stroke="#4e7dab" stroke-width="12" opacity="0.48"/>
+    <circle r="12" fill="#edf8ff"/>
+  </g>
+
+  <g transform="translate(628 300)">
+    <ellipse cx="-88" cy="-8" rx="70" ry="100" fill="url(#whitePetal)" transform="rotate(-42 -88 -8)"/>
+    <ellipse cx="-24" cy="-74" rx="78" ry="110" fill="url(#whitePetal)" transform="rotate(-14 -24 -74)"/>
+    <ellipse cx="58" cy="-78" rx="78" ry="110" fill="url(#whitePetal)" transform="rotate(18 58 -78)"/>
+    <ellipse cx="118" cy="-12" rx="70" ry="100" fill="url(#whitePetal)" transform="rotate(44 118 -12)"/>
+    <ellipse cx="98" cy="74" rx="64" ry="92" fill="url(#whitePetal)" transform="rotate(62 98 74)"/>
+    <ellipse cx="8" cy="108" rx="74" ry="104" fill="url(#whitePetal)" transform="rotate(8 8 108)"/>
+    <ellipse cx="-88" cy="82" rx="70" ry="100" fill="url(#whitePetal)" transform="rotate(-56 -88 82)"/>
+    <path d="M-38 8 C-12 -34 44 -36 58 8 C34 26 8 52 -8 94 C-42 66 -56 38 -38 8 Z" fill="#fffdf9" stroke="#d7cec4" stroke-width="10"/>
+    <path d="M10 26 C24 -8 62 -8 72 18 C56 36 28 52 14 82 C-6 64 -4 44 10 26 Z" fill="#ede7df"/>
+  </g>
+
+  <g transform="translate(736 446)">
+    <ellipse cx="-66" cy="-6" rx="50" ry="76" fill="url(#blueSoftPetal)" transform="rotate(-34 -66 -6)"/>
+    <ellipse cx="-10" cy="-56" rx="54" ry="82" fill="url(#blueSoftPetal)" transform="rotate(-10 -10 -56)"/>
+    <ellipse cx="52" cy="-10" rx="50" ry="76" fill="url(#blueSoftPetal)" transform="rotate(28 52 -10)"/>
+    <ellipse cx="50" cy="58" rx="42" ry="66" fill="url(#blueSoftPetal)" transform="rotate(54 50 58)"/>
+    <ellipse cx="-6" cy="78" rx="50" ry="76" fill="url(#blueSoftPetal)" transform="rotate(10 -6 78)"/>
+    <ellipse cx="-62" cy="52" rx="44" ry="70" fill="url(#blueSoftPetal)" transform="rotate(-52 -62 52)"/>
+    <circle r="76" fill="url(#blueSoftPetal)"/>
+    <circle r="18" fill="#3d6b9b"/>
+    <circle r="8" fill="#6f95ba"/>
+  </g>
+
+  <g fill="url(#stemFill)" opacity="0.88">
+    <path d="M418 642 C454 708 474 760 488 850 L456 850 C448 764 420 702 388 650 Z"/>
+    <path d="M492 628 C514 694 532 752 544 850 L516 850 C508 768 490 706 464 642 Z"/>
+    <path d="M560 632 C586 704 600 758 616 850 L588 850 C578 778 558 712 534 646 Z"/>
+    <path d="M638 608 C670 676 694 736 724 842 L694 842 C674 764 648 700 610 628 Z"/>
+  </g>
+</svg>

@@ -1,61 +1,86 @@
 # Flower Bouquet WebAR
 
-Marker-based WebAR app built with A-Frame and AR.js for GitHub Pages deployment.
+GitHub Pages で公開している WebAR 一式です。  
+ルートは入口だけにして、`本番 / 実験 / デバッグ / マーカー / 資料 / 退避` で整理しています。
 
-## Files
+## Current Pages
 
-- `index.html`: main AR scene.
-- `marker.patt`: pattern file used by AR.js.
-- `marker.png`: source pattern image used to generate the marker.
-- `pattern-marker.png`: printable marker image with the required black border for camera detection.
-- `message.png`: Japanese message card shown above the marker.
-- `bouquet.gltf`: placeholder bouquet model. Replace it with a real bouquet asset later if needed.
+- Current production: `production/current/mobile-card-ar.html`
+- Latest experiment: `experimental/latest/experimental-two-image-ar.html`
+- Legacy 3D version: `production/legacy/legacy-3d-ar.html`
+- AR debug: `debug/ar-marker-debug.html`
+- Camera test: `debug/camera-permission-test.html`
+- Printable marker: `markers/custom-marker-print.png`
 
-## Local preview
+Root compatibility pages remain available:
 
-GitHub Pages serves this as a static site, so test it through a local HTTP server instead of opening the file directly.
+- `mobile.html` -> current production
+- `experimental.html` -> latest experiment
+- `ar-debug.html` -> AR debug
+- `camera-test.html` -> camera test
+
+## Tree
+
+```text
+/
+|-- index.html
+|-- mobile.html
+|-- experimental.html
+|-- ar-debug.html
+|-- camera-test.html
+|-- production/
+|   |-- current/
+|   |   `-- mobile-card-ar.html
+|   `-- legacy/
+|       |-- legacy-3d-ar.html
+|       |-- legacy-bouquet.gltf
+|       `-- legacy-message-card.png
+|-- experimental/
+|   `-- latest/
+|       |-- experimental-two-image-ar.html
+|       |-- bouquet-blue-reference.svg
+|       `-- message-card-reference.svg
+|-- debug/
+|   |-- ar-marker-debug.html
+|   |-- camera-permission-test.html
+|   `-- hiro.png
+|-- markers/
+|   |-- custom-marker.patt
+|   |-- custom-marker-source.png
+|   `-- custom-marker-print.png
+|-- docs/
+|   `-- codex-cli-prompt.md
+`-- archive/
+    |-- bouquet-mobile.svg
+    |-- experimental-frame.svg
+    |-- mobile-card-1024.jpg
+    `-- mobile-card.png
+```
+
+## Published URLs
+
+- Hub: `https://mrdog1.github.io/flower-ar/`
+- Current production: `https://mrdog1.github.io/flower-ar/production/current/mobile-card-ar.html`
+- Latest experiment: `https://mrdog1.github.io/flower-ar/experimental/latest/experimental-two-image-ar.html`
+- Printable marker: `https://mrdog1.github.io/flower-ar/markers/custom-marker-print.png`
+
+## Local Preview
+
+Use a local HTTP server instead of opening files directly.
 
 ```powershell
 cd "C:\Users\IWATA\自作アプリ\AR\Flower_bouche"
 python -m http.server 8000
 ```
 
-Then open `http://localhost:8000/` on a phone or desktop browser with camera access.
+Then open one of these:
 
-## Git setup and push
-
-Initialize this folder as the repository, connect it to GitHub, and push `main`.
-
-```powershell
-cd "C:\Users\IWATA\自作アプリ\AR\Flower_bouche"
-git init
-git remote add origin https://github.com/MrDog1/flower-ar.git
-git add index.html README.md marker.patt marker.png message.png bouquet.gltf
-git commit -m "Add WebAR bouquet app"
-git branch -M main
-git push -u origin main
-```
-
-If `origin` already exists, update it instead:
-
-```powershell
-git remote set-url origin https://github.com/MrDog1/flower-ar.git
-```
-
-## GitHub Pages
-
-1. Open `https://github.com/MrDog1/flower-ar`.
-2. Go to `Settings` > `Pages`.
-3. Set `Source` to `Deploy from a branch`.
-4. Select branch `main` and folder `/(root)`.
-5. Save and wait for the Pages deployment to finish.
-
-The published site URL will be:
-
-`https://mrdog1.github.io/flower-ar/`
+- `http://localhost:8000/`
+- `http://localhost:8000/production/current/mobile-card-ar.html`
+- `http://localhost:8000/experimental/latest/experimental-two-image-ar.html`
 
 ## Notes
 
-- GitHub Pages requires HTTPS, which is compatible with camera access on mobile browsers.
-- Replace `bouquet.gltf` with a higher quality `.glb` or `.gltf` model when ready.
-- If the marker is hard to detect, print `marker.png` clearly and keep it flat with good lighting.
+- Production uses the custom QR-like marker under `markers/`.
+- The latest experiment uses a two-image composition: bouquet image + message card image.
+- Android-specific rendering workarounds are no longer the priority for the experiment; the main target is Safari / iPad / iPhone style browsing.
