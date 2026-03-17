@@ -30,7 +30,7 @@
     <a-scene
       vr-mode-ui="enabled: false;"
       embedded
-      renderer="alpha: true; logarithmicDepthBuffer: true; precision: medium;"
+      renderer="logarithmicDepthBuffer: true; precision: medium;"
       arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false; patternRatio: 0.8;"
     >
       <a-assets timeout="15000">
@@ -90,35 +90,9 @@
         statusElement.textContent = message;
       };
 
-      const normalizeRootLayout = () => {
-        document.documentElement.style.margin = "0";
-        document.documentElement.style.width = "100%";
-        document.documentElement.style.height = "100%";
-        document.documentElement.style.overflow = "hidden";
-
-        document.body.style.margin = "0";
-        document.body.style.marginLeft = "0px";
-        document.body.style.marginTop = "0px";
-        document.body.style.width = "100vw";
-        document.body.style.height = "100vh";
-        document.body.style.overflow = "hidden";
-        document.body.style.position = "fixed";
-        document.body.style.left = "0";
-        document.body.style.top = "0";
-        document.body.style.right = "0";
-        document.body.style.bottom = "0";
-        document.body.style.background = "#000";
-      };
-
       const fitArViewport = () => {
-        normalizeRootLayout();
-
-        const video =
-          document.querySelector("video#arjs-video") || document.querySelector("video");
-        const sceneCanvas =
-          document.querySelector("canvas.a-canvas") ||
-          document.querySelector("canvas[data-aframe-canvas]");
-        const drawables = [video, sceneCanvas].filter(Boolean);
+        const video = document.querySelector("video");
+        const drawables = [video, ...document.querySelectorAll("canvas")].filter(Boolean);
         if (!drawables.length) {
           return;
         }
@@ -133,11 +107,11 @@
         let targetHeight;
 
         if (sourceAspect > viewportAspect) {
-          targetWidth = window.innerWidth;
-          targetHeight = targetWidth / sourceAspect;
-        } else {
           targetHeight = window.innerHeight;
           targetWidth = targetHeight * sourceAspect;
+        } else {
+          targetWidth = window.innerWidth;
+          targetHeight = targetWidth / sourceAspect;
         }
 
         const left = (window.innerWidth - targetWidth) / 2;
@@ -147,15 +121,11 @@
           element.style.position = "fixed";
           element.style.left = `${left}px`;
           element.style.top = `${top}px`;
-          element.style.right = "auto";
-          element.style.bottom = "auto";
           element.style.width = `${targetWidth}px`;
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.transform = "none";
-          element.style.objectFit = "contain";
-          element.style.backgroundColor = "#000";
+          element.style.objectFit = "cover";
         });
       };
 
@@ -171,7 +141,7 @@
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at pattern-marker.png. If the marker looks too large, use landscape."
+            "AR.js camera is live. Point it at pattern-marker.png. If the framing still feels tight, rotate the phone sideways."
           );
         }
       };
@@ -184,7 +154,7 @@
       window.addEventListener("resize", fitArViewport);
       window.addEventListener("orientationchange", fitArViewport);
 
-      window.setInterval(probeVideo, 200);
+      window.setInterval(probeVideo, 800);
 
       marker.addEventListener("markerFound", () => {
         setStatus("Marker detected.");
