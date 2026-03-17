@@ -26,12 +26,41 @@
       html,
       body {
         margin: 0;
-        min-height: 100%;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
         font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-        background:
-          radial-gradient(circle at top, rgba(255, 217, 228, 0.75), transparent 40%),
-          linear-gradient(180deg, #fff7f9 0%, #ffeef3 100%);
+        background: #12060c;
         color: var(--text-main);
+      }
+
+      body {
+        position: relative;
+      }
+
+      a-scene {
+        position: fixed !important;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1;
+      }
+
+      .a-canvas,
+      canvas,
+      video,
+      .arjs-video {
+        position: fixed !important;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+      }
+
+      video,
+      .arjs-video {
+        z-index: 0;
+        background: #12060c;
       }
 
       .hud {
@@ -39,6 +68,7 @@
         top: 0;
         left: 0;
         right: 0;
+        bottom: 0;
         z-index: 10;
         padding: 16px;
         pointer-events: none;
@@ -71,6 +101,42 @@
         font-size: 0.86rem;
       }
 
+      .guide {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: min(72vw, 360px);
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        border: 4px solid rgba(255, 255, 255, 0.94);
+        border-radius: 28px;
+        box-shadow:
+          0 0 0 999px rgba(18, 6, 12, 0.24),
+          0 16px 36px rgba(0, 0, 0, 0.22);
+      }
+
+      .guide::before,
+      .guide::after {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        border: 2px dashed rgba(255, 223, 231, 0.9);
+        border-radius: 18px;
+      }
+
+      .guide-label {
+        position: absolute;
+        left: 50%;
+        bottom: calc(50% - min(36vw, 180px) - 54px);
+        transform: translateX(-50%);
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(69, 34, 44, 0.82);
+        color: #fff6f8;
+        font-size: 0.84rem;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
       .a-enter-vr-button,
       .a-orientation-modal {
         display: none !important;
@@ -84,6 +150,8 @@
         <p>Allow camera access, then point at <code>marker.png</code>.</p>
         <p id="status">Loading AR scene...</p>
       </div>
+      <div class="guide" aria-hidden="true"></div>
+      <div class="guide-label" aria-hidden="true">Place the marker inside this frame</div>
     </div>
 
     <a-scene
@@ -129,6 +197,7 @@
       const statusElement = document.getElementById("status");
       const marker = document.getElementById("bouquet-marker");
       const modelAsset = document.getElementById("bouquetModel");
+      const scene = document.querySelector("a-scene");
 
       const setStatus = (message) => {
         statusElement.textContent = message;
@@ -148,6 +217,14 @@
 
       modelAsset.addEventListener("error", () => {
         setStatus("The bouquet model could not be loaded.");
+      });
+
+      scene.addEventListener("loaded", () => {
+        setStatus("Camera is loading. Allow access if your browser asks.");
+      });
+
+      window.addEventListener("camera-error", () => {
+        setStatus("Camera access failed. Open this page in Chrome, Edge, or Safari and allow the camera.");
       });
     </script>
   </body>
