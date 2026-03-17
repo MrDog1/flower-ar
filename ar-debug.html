@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>AR Debug</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden; background: #000;">
+    <div
+      id="status"
+      style="
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        z-index: 20;
+        max-width: 460px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(255, 251, 252, 0.92);
+        color: #45222c;
+        font: 14px/1.45 'Segoe UI', sans-serif;
+      "
+    >
+      Waiting for AR.js camera...
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: false;"
+      embedded
+      renderer="logarithmicDepthBuffer: true; precision: medium;"
+      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true;"
+    >
+      <a-marker id="hiro-marker" preset="hiro" emitevents="true">
+        <a-box position="0 0.5 0" rotation="0 45 0" color="#4CC3D9"></a-box>
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      const statusElement = document.getElementById("status");
+      const marker = document.getElementById("hiro-marker");
+
+      const setStatus = (message) => {
+        statusElement.textContent = message;
+      };
+
+      let videoReported = false;
+      window.setInterval(() => {
+        const video = document.querySelector("video");
+        if (!video) {
+          return;
+        }
+
+        if (!videoReported && video.readyState >= 2) {
+          videoReported = true;
+          setStatus(
+            "AR.js camera is live. Test with the Hiro marker: https://raw.githubusercontent.com/AR-js-org/AR.js/master/three.js/examples/marker-training/examples/pattern-files/hiro.png"
+          );
+        }
+      }, 800);
+
+      marker.addEventListener("markerFound", () => {
+        setStatus("Hiro marker detected. AR.js marker tracking works.");
+      });
+
+      marker.addEventListener("markerLost", () => {
+        setStatus("Hiro marker lost. Move the Hiro marker back into view.");
+      });
+
+      window.addEventListener("camera-error", () => {
+        setStatus("AR.js camera failed. Reload and allow camera access.");
+      });
+    </script>
+  </body>
+</html>
