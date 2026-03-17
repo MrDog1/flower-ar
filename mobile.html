@@ -6,15 +6,48 @@
     <title>Flower Bouquet WebAR Mobile</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <style>
+      :root {
+        --app-width: 100vw;
+        --app-height: 100dvh;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        overscroll-behavior: none;
+      }
+
+      body {
+        position: fixed;
+        inset: 0;
+        width: var(--app-width);
+        height: var(--app-height);
+      }
+
+      #status {
+        top: calc(env(safe-area-inset-top, 0px) + 12px);
+        left: calc(env(safe-area-inset-left, 0px) + 12px);
+        right: calc(env(safe-area-inset-right, 0px) + 12px);
+      }
+
+      a-scene {
+        position: fixed !important;
+        inset: 0 !important;
+        width: var(--app-width) !important;
+        height: var(--app-height) !important;
+      }
+    </style>
   </head>
-  <body style="margin: 0; overflow: hidden; background: #000;">
+  <body>
     <div
       id="status"
       style="
         position: fixed;
-        top: 12px;
-        left: 12px;
-        right: 12px;
         z-index: 20;
         max-width: 420px;
         padding: 12px 14px;
@@ -97,46 +130,65 @@
         statusElement.textContent = message;
       };
 
+      const getViewportRect = () => {
+        const viewport = window.visualViewport;
+        if (viewport) {
+          return {
+            width: Math.round(viewport.width),
+            height: Math.round(viewport.height),
+            left: Math.round(viewport.offsetLeft),
+            top: Math.round(viewport.offsetTop)
+          };
+        }
+
+        return {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          left: 0,
+          top: 0
+        };
+      };
+
+      const syncRootViewport = () => {
+        const viewport = getViewportRect();
+        document.documentElement.style.setProperty("--app-width", `${viewport.width}px`);
+        document.documentElement.style.setProperty("--app-height", `${viewport.height}px`);
+        document.body.style.width = `${viewport.width}px`;
+        document.body.style.height = `${viewport.height}px`;
+        document.body.style.left = `${viewport.left}px`;
+        document.body.style.top = `${viewport.top}px`;
+        return viewport;
+      };
+
+      const fitDrawable = (element, viewport, objectFit, zIndex, backgroundColor) => {
+        if (!element) {
+          return;
+        }
+
+        element.style.position = "fixed";
+        element.style.left = `${viewport.left}px`;
+        element.style.top = `${viewport.top}px`;
+        element.style.width = `${viewport.width}px`;
+        element.style.height = `${viewport.height}px`;
+        element.style.marginLeft = "0";
+        element.style.marginTop = "0";
+        element.style.right = "auto";
+        element.style.bottom = "auto";
+        element.style.transform = "none";
+        element.style.objectFit = objectFit;
+        element.style.pointerEvents = "none";
+        element.style.zIndex = zIndex;
+        element.style.backgroundColor = backgroundColor;
+      };
+
       const fitArViewport = () => {
+        const viewport = syncRootViewport();
         const video = document.querySelector("video");
         const sceneCanvas =
           document.querySelector("canvas.a-canvas") ||
           document.querySelector("canvas[data-aframe-canvas]");
-        const drawables = [video, sceneCanvas].filter(Boolean);
-        if (!drawables.length) {
-          return;
-        }
-
-        const sourceAspect =
-          video && video.videoWidth && video.videoHeight
-            ? video.videoWidth / video.videoHeight
-            : 4 / 3;
-        const viewportAspect = window.innerWidth / window.innerHeight;
-
-        let targetWidth;
-        let targetHeight;
-
-        if (sourceAspect > viewportAspect) {
-          targetHeight = window.innerHeight;
-          targetWidth = targetHeight * sourceAspect;
-        } else {
-          targetWidth = window.innerWidth;
-          targetHeight = targetWidth / sourceAspect;
-        }
-
-        const left = (window.innerWidth - targetWidth) / 2;
-        const top = (window.innerHeight - targetHeight) / 2;
-
-        drawables.forEach((element) => {
-          element.style.position = "fixed";
-          element.style.left = `${left}px`;
-          element.style.top = `${top}px`;
-          element.style.width = `${targetWidth}px`;
-          element.style.height = `${targetHeight}px`;
-          element.style.marginLeft = "0";
-          element.style.marginTop = "0";
-          element.style.objectFit = "cover";
-        });
+        fitDrawable(video, viewport, "contain", "-2", "#000");
+        fitDrawable(sceneCanvas, viewport, "contain", "-1", "transparent");
       };
 
       let videoReadyMessageShown = false;
@@ -163,6 +215,10 @@
 
       window.addEventListener("resize", fitArViewport);
       window.addEventListener("orientationchange", fitArViewport);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", fitArViewport);
+        window.visualViewport.addEventListener("scroll", fitArViewport);
+      }
 
       window.setInterval(probeVideo, 800);
 
