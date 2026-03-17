@@ -64,15 +64,16 @@
       vr-mode-ui="enabled: false;"
       embedded
       renderer="alpha: true; logarithmicDepthBuffer: true; precision: medium;"
-      arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
+      arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false; patternRatio: 0.8;"
     >
       <a-assets timeout="15000">
-        <img id="mobile-card" src="./mobile-card.png" alt="Bouquet and message card">
+        <img id="mobile-card" src="./mobile-card-1024.jpg" alt="Bouquet and message card">
       </a-assets>
 
       <a-marker
         id="marker"
-        preset="hiro"
+        type="pattern"
+        url="./marker.patt"
         emitevents="true"
         smooth="true"
         smoothCount="5"
@@ -186,7 +187,7 @@
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at hiro.png."
+            "AR.js camera is live. Point it at pattern-marker.png."
           );
         }
       };
@@ -206,15 +207,15 @@
       window.setInterval(probeVideo, 800);
 
       marker.addEventListener("markerFound", () => {
-        setStatus("Hiro marker detected. Bouquet and message should appear above the marker.");
+        setStatus("Marker detected. Bouquet and message should appear above the marker.");
       });
 
       marker.addEventListener("markerLost", () => {
-        setStatus("Marker lost. Bring hiro.png back into view.");
+        setStatus("Marker lost. Bring pattern-marker.png back into view.");
       });
 
       mobileCard.addEventListener("load", () => {
-        setStatus("AR.js camera is live. Point it at hiro.png.");
+        setStatus("AR.js camera is live. Point it at pattern-marker.png.");
       });
 
       window.addEventListener("camera-error", () => {
