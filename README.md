@@ -1,12 +1,19 @@
 # Flower Bouquet WebAR
 
-GitHub Pages で公開している WebAR 一式です。  
-ルートは入口だけにして、`本番 / 実験 / デバッグ / マーカー / 資料 / 退避` で整理しています。
+This repository hosts the GitHub Pages build for the marker-based WebAR project.
+
+The current production page is:
+
+- `production/current/mobile-card-ar.html`
+
+The old experimental URL is still kept for compatibility, but it now redirects to the current production page:
+
+- `experimental/latest/experimental-two-image-ar.html`
 
 ## Current Pages
 
 - Current production: `production/current/mobile-card-ar.html`
-- Latest experiment: `experimental/latest/experimental-two-image-ar.html`
+- Experimental alias: `experimental/latest/experimental-two-image-ar.html`
 - Legacy 3D version: `production/legacy/legacy-3d-ar.html`
 - AR debug: `debug/ar-marker-debug.html`
 - Camera test: `debug/camera-permission-test.html`
@@ -15,7 +22,7 @@ GitHub Pages で公開している WebAR 一式です。
 Root compatibility pages remain available:
 
 - `mobile.html` -> current production
-- `experimental.html` -> latest experiment
+- `experimental.html` -> experimental alias
 - `ar-debug.html` -> AR debug
 - `camera-test.html` -> camera test
 
@@ -30,16 +37,16 @@ Root compatibility pages remain available:
 |-- camera-test.html
 |-- production/
 |   |-- current/
-|   |   `-- mobile-card-ar.html
+|   |   |-- mobile-card-ar.html
+|   |   |-- bouquet-svgrepo.svg
+|   |   `-- message-card-reference.svg
 |   `-- legacy/
 |       |-- legacy-3d-ar.html
 |       |-- legacy-bouquet.gltf
 |       `-- legacy-message-card.png
 |-- experimental/
 |   `-- latest/
-|       |-- experimental-two-image-ar.html
-|       |-- bouquet-svgrepo.svg
-|       `-- message-card-reference.svg
+|       `-- experimental-two-image-ar.html
 |-- debug/
 |   |-- ar-marker-debug.html
 |   |-- camera-permission-test.html
@@ -51,8 +58,9 @@ Root compatibility pages remain available:
 |-- docs/
 |   `-- codex-cli-prompt.md
 `-- archive/
-    |-- bouquet-mobile.svg
+    |-- mobile-card-canvas-ar.html
     |-- bouquet-blue-reference.svg
+    |-- bouquet-mobile.svg
     |-- experimental-frame.svg
     |-- mobile-card-1024.jpg
     `-- mobile-card.png
@@ -62,7 +70,7 @@ Root compatibility pages remain available:
 
 - Hub: `https://mrdog1.github.io/flower-ar/`
 - Current production: `https://mrdog1.github.io/flower-ar/production/current/mobile-card-ar.html`
-- Latest experiment: `https://mrdog1.github.io/flower-ar/experimental/latest/experimental-two-image-ar.html`
+- Experimental alias: `https://mrdog1.github.io/flower-ar/experimental/latest/experimental-two-image-ar.html`
 - Printable marker: `https://mrdog1.github.io/flower-ar/markers/custom-marker-print.png`
 
 ## Local Preview
@@ -82,6 +90,6 @@ Then open one of these:
 
 ## Notes
 
-- Production uses the custom QR-like marker under `markers/`.
-- The latest experiment uses a two-image composition: bouquet image + message card image.
-- Android-specific rendering workarounds are no longer the priority for the experiment; the main target is Safari / iPad / iPhone style browsing.
+- Current production uses the promoted two-image composition: bouquet SVG plus message-card SVG.
+- The marker files under `markers/` now use the newer bouquet pattern from Downloads.
+- Legacy and archived files are kept only for rollback or comparison.

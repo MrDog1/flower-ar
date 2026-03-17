@@ -116,23 +116,23 @@
     <main>
       <h1>Flower Bouquet WebAR</h1>
       <p class="lead">
-        This hub shows which page is the current production build, which page is the latest
-        experiment, which page is the legacy 3D version, and where the debug tools and the
-        printable marker now live.
+        This hub shows which page is the current production build, which URL remains as a
+        compatibility alias, which page is the legacy 3D version, and where the debug tools
+        and the printable marker now live.
       </p>
 
       <section class="grid">
         <article class="card">
           <span class="eyebrow">Current Production</span>
           <h2>Current Production</h2>
-          <p>The main deploy target for the QR-like custom marker flow.</p>
+          <p>The official deploy target. This is the promoted two-image build with bouquet SVG and message-card SVG.</p>
           <a class="link" href="./production/current/mobile-card-ar.html">production/current/mobile-card-ar.html</a>
         </article>
 
         <article class="card">
-          <span class="eyebrow">Latest Experiment</span>
-          <h2>Latest Experiment</h2>
-          <p>The latest two-image experiment: one bouquet SVG and one message-card SVG.</p>
+          <span class="eyebrow">Compatibility URL</span>
+          <h2>Experimental Alias</h2>
+          <p>The old experimental URL now redirects to the current production build.</p>
           <a class="link" href="./experimental/latest/experimental-two-image-ar.html">experimental/latest/experimental-two-image-ar.html</a>
         </article>
 
@@ -174,16 +174,16 @@
 |-- camera-test.html
 |-- production/
 |   |-- current/
-|   |   `-- mobile-card-ar.html
+|   |   |-- mobile-card-ar.html
+|   |   |-- bouquet-svgrepo.svg
+|   |   `-- message-card-reference.svg
 |   `-- legacy/
 |       |-- legacy-3d-ar.html
 |       |-- legacy-bouquet.gltf
 |       `-- legacy-message-card.png
 |-- experimental/
 |   `-- latest/
-|       |-- experimental-two-image-ar.html
-|       |-- bouquet-svgrepo.svg
-|       `-- message-card-reference.svg
+|       `-- experimental-two-image-ar.html   # redirect to current production
 |-- debug/
 |   |-- ar-marker-debug.html
 |   |-- camera-permission-test.html
@@ -195,6 +195,7 @@
 |-- docs/
 |   `-- codex-cli-prompt.md
 `-- archive/
+    |-- mobile-card-canvas-ar.html
     |-- bouquet-blue-reference.svg
     |-- bouquet-mobile.svg
     |-- experimental-frame.svg
