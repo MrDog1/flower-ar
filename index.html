@@ -2,40 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Flower Bouquet WebAR</title>
-    <meta
-      name="description"
-      content="Marker-based WebAR bouquet built with A-Frame and AR.js."
-    >
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-      :root {
-        color-scheme: light;
-        --panel-bg: rgba(255, 251, 252, 0.88);
-        --panel-border: rgba(212, 88, 125, 0.9);
-        --text-main: #45222c;
-        --text-sub: #885d69;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
       html,
       body {
-        margin: 0;
         width: 100%;
         height: 100%;
+        margin: 0;
         overflow: hidden;
+        background: #000;
         font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-        background: #12060c;
-        color: var(--text-main);
-      }
-
-      body {
-        position: relative;
       }
 
       a-scene {
@@ -43,97 +22,66 @@
         inset: 0;
         width: 100% !important;
         height: 100% !important;
-        z-index: 1;
       }
 
-      .a-canvas,
-      canvas,
-      video,
-      .arjs-video {
-        position: fixed !important;
-        inset: 0;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover;
-      }
-
-      video,
-      .arjs-video {
-        z-index: 0;
-        background: #12060c;
-      }
-
-      .hud {
+      .overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         z-index: 10;
-        padding: 16px;
         pointer-events: none;
       }
 
-      .card {
+      .panel {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 12px;
         max-width: 360px;
-        padding: 14px 16px;
-        border: 1px solid var(--panel-border);
-        border-radius: 18px;
-        background: var(--panel-bg);
-        backdrop-filter: blur(8px);
-        box-shadow: 0 12px 32px rgba(125, 52, 74, 0.14);
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255, 251, 252, 0.9);
+        color: #45222c;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
       }
 
-      .card h1 {
+      .panel h1 {
         margin: 0 0 6px;
         font-size: 1rem;
       }
 
-      .card p {
+      .panel p {
         margin: 0;
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         line-height: 1.45;
-        color: var(--text-sub);
       }
 
       #status {
-        margin-top: 10px;
-        font-size: 0.86rem;
+        margin-top: 8px;
+        color: #7f5963;
       }
 
       .guide {
         position: absolute;
-        inset: 50% auto auto 50%;
-        width: min(72vw, 360px);
-        aspect-ratio: 1;
+        top: 50%;
+        left: 50%;
+        width: min(72vw, 320px);
+        height: min(72vw, 320px);
         transform: translate(-50%, -50%);
-        border: 4px solid rgba(255, 255, 255, 0.94);
-        border-radius: 28px;
-        box-shadow:
-          0 0 0 999px rgba(18, 6, 12, 0.24),
-          0 16px 36px rgba(0, 0, 0, 0.22);
-      }
-
-      .guide::before,
-      .guide::after {
-        content: "";
-        position: absolute;
-        inset: 14px;
-        border: 2px dashed rgba(255, 223, 231, 0.9);
-        border-radius: 18px;
+        border: 4px solid rgba(255, 255, 255, 0.92);
+        border-radius: 24px;
+        box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.18);
       }
 
       .guide-label {
         position: absolute;
         left: 50%;
-        bottom: calc(50% - min(36vw, 180px) - 54px);
+        bottom: calc(50% - min(36vw, 160px) - 52px);
         transform: translateX(-50%);
-        padding: 8px 14px;
+        padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(69, 34, 44, 0.82);
-        color: #fff6f8;
-        font-size: 0.84rem;
-        letter-spacing: 0.02em;
+        background: rgba(0, 0, 0, 0.66);
+        color: #fff;
+        font-size: 0.82rem;
         white-space: nowrap;
       }
 
@@ -144,50 +92,62 @@
     </style>
   </head>
   <body>
-    <div class="hud">
-      <div class="card">
+    <div class="overlay">
+      <div class="panel">
         <h1>Flower Bouquet WebAR</h1>
-        <p>Allow camera access, then point at <code>marker.png</code>.</p>
-        <p id="status">Loading AR scene...</p>
+        <p>Place <code>marker.png</code> inside the center frame.</p>
+        <p id="status">Waiting for camera permission...</p>
       </div>
       <div class="guide" aria-hidden="true"></div>
-      <div class="guide-label" aria-hidden="true">Place the marker inside this frame</div>
+      <div class="guide-label" aria-hidden="true">Align marker.png here</div>
     </div>
 
     <a-scene
       embedded
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
-      renderer="colorManagement: true; alpha: true; antialias: true"
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; patternRatio: 0.8;"
+      arjs="sourceType: webcam; patternRatio: 0.8; debugUIEnabled: false;"
     >
       <a-assets timeout="15000">
-        <img id="messageCard" src="./message.png" alt="Message card">
-        <a-asset-item id="bouquetModel" src="./bouquet.gltf"></a-asset-item>
+        <img id="message-card" src="./message.png" alt="Message card">
+        <a-asset-item id="bouquet-model" src="./bouquet.gltf"></a-asset-item>
       </a-assets>
 
       <a-marker
-        id="bouquet-marker"
+        id="marker"
         type="pattern"
         url="./marker.patt"
+        emitevents="true"
         smooth="true"
-        smoothCount="8"
+        smoothCount="5"
         smoothTolerance="0.01"
-        smoothThreshold="5"
+        smoothThreshold="2"
       >
         <a-image
-          src="#messageCard"
+          src="#message-card"
           width="1.7"
           height="0.85"
-          position="0 1.02 0.18"
-          material="alphaTest: 0.01; transparent: true; side: double"
+          position="0 1.05 0"
+          material="transparent: true; alphaTest: 0.01"
         ></a-image>
 
         <a-entity
-          gltf-model="#bouquetModel"
-          position="0 0.42 0"
-          scale="0.4 0.4 0.4"
+          id="bouquet"
+          gltf-model="#bouquet-model"
+          position="0 0.25 0"
+          scale="0.42 0.42 0.42"
         ></a-entity>
+
+        <a-box
+          id="fallback-box"
+          position="0 0.15 0"
+          rotation="0 45 0"
+          color="#4CC3D9"
+          depth="0.2"
+          height="0.2"
+          width="0.2"
+          visible="false"
+        ></a-box>
       </a-marker>
 
       <a-entity camera></a-entity>
@@ -195,36 +155,33 @@
 
     <script>
       const statusElement = document.getElementById("status");
-      const marker = document.getElementById("bouquet-marker");
-      const modelAsset = document.getElementById("bouquetModel");
-      const scene = document.querySelector("a-scene");
+      const marker = document.getElementById("marker");
+      const modelAsset = document.getElementById("bouquet-model");
+      const fallbackBox = document.getElementById("fallback-box");
 
       const setStatus = (message) => {
         statusElement.textContent = message;
       };
 
       window.addEventListener("load", () => {
-        setStatus("Camera ready. Point at marker.png to reveal the bouquet.");
+        setStatus("When the camera appears, point it at marker.png.");
       });
 
       marker.addEventListener("markerFound", () => {
-        setStatus("Marker detected. Bouquet is anchored to the card.");
+        setStatus("Marker detected.");
       });
 
       marker.addEventListener("markerLost", () => {
-        setStatus("Marker lost. Point the camera back at marker.png.");
+        setStatus("Marker lost. Move marker.png back into the center frame.");
       });
 
       modelAsset.addEventListener("error", () => {
-        setStatus("The bouquet model could not be loaded.");
-      });
-
-      scene.addEventListener("loaded", () => {
-        setStatus("Camera is loading. Allow access if your browser asks.");
+        fallbackBox.setAttribute("visible", "true");
+        setStatus("Bouquet model failed to load, showing a debug box instead.");
       });
 
       window.addEventListener("camera-error", () => {
-        setStatus("Camera access failed. Open this page in Chrome, Edge, or Safari and allow the camera.");
+        setStatus("Camera failed. Open in Chrome, Edge, or Safari and allow camera access.");
       });
     </script>
   </body>
