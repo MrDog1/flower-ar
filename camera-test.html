@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Camera Test</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #111;
+        color: #fff;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+      }
+
+      main {
+        width: min(100%, 640px);
+        padding: 16px;
+      }
+
+      video {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        background: #000;
+        border-radius: 16px;
+        object-fit: cover;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      code {
+        background: rgba(255, 255, 255, 0.12);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Camera Test</h1>
+      <p id="status">Requesting camera permission...</p>
+      <video id="video" autoplay muted playsinline></video>
+      <p>Open this page directly in Chrome, Edge, or Safari.</p>
+      <p>If this page stays black, the issue is browser or device permission, not AR.js.</p>
+    </main>
+
+    <script>
+      const statusElement = document.getElementById("status");
+      const videoElement = document.getElementById("video");
+
+      const setStatus = (message) => {
+        statusElement.textContent = message;
+      };
+
+      const start = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setStatus("getUserMedia is not supported in this browser.");
+          return;
+        }
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: {
+                ideal: "environment"
+              }
+            }
+          });
+
+          videoElement.srcObject = stream;
+          setStatus("Camera is live.");
+        } catch (error) {
+          setStatus("Camera failed: " + error.name);
+        }
+      };
+
+      start();
+    </script>
+  </body>
+</html>
