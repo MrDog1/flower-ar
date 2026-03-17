@@ -38,7 +38,7 @@ Root compatibility pages remain available:
 |-- experimental/
 |   `-- latest/
 |       |-- experimental-two-image-ar.html
-|       |-- bouquet-blue-reference.svg
+|       |-- bouquet-svgrepo.svg
 |       `-- message-card-reference.svg
 |-- debug/
 |   |-- ar-marker-debug.html
@@ -52,6 +52,7 @@ Root compatibility pages remain available:
 |   `-- codex-cli-prompt.md
 `-- archive/
     |-- bouquet-mobile.svg
+    |-- bouquet-blue-reference.svg
     |-- experimental-frame.svg
     |-- mobile-card-1024.jpg
     `-- mobile-card.png

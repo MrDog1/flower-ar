@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,8 +8,8 @@
       :root {
         --bg: #f6efe8;
         --ink: #40212d;
-        --muted: #7b5e68;
-        --card: rgba(255, 252, 253, 0.92);
+        --muted: #755763;
+        --card: rgba(255, 252, 253, 0.94);
         --line: #d46d96;
         --accent: #255c8f;
       }
@@ -27,7 +27,7 @@
           radial-gradient(circle at bottom right, rgba(37, 92, 143, 0.18), transparent 30%),
           var(--bg);
         color: var(--ink);
-        font-family: "Yu Gothic UI", "Hiragino Sans", "Segoe UI", sans-serif;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
       }
 
       body {
@@ -47,7 +47,7 @@
 
       p.lead {
         margin: 0 0 28px;
-        max-width: 720px;
+        max-width: 760px;
         color: var(--muted);
         line-height: 1.7;
       }
@@ -116,75 +116,90 @@
     <main>
       <h1>Flower Bouquet WebAR</h1>
       <p class="lead">
-        入口ページです。最新本番、最新実験、旧3D版、デバッグ、印刷用マーカーをここから辿れます。
+        This hub shows which page is the current production build, which page is the latest
+        experiment, which page is the legacy 3D version, and where the debug tools and the
+        printable marker now live.
       </p>
 
       <section class="grid">
         <article class="card">
           <span class="eyebrow">Current Production</span>
-          <h2>最新本番</h2>
-          <p>配布用の本命ページです。カスタムマーカー前提の安定版です。</p>
+          <h2>Current Production</h2>
+          <p>The main deploy target for the QR-like custom marker flow.</p>
           <a class="link" href="./production/current/mobile-card-ar.html">production/current/mobile-card-ar.html</a>
         </article>
 
         <article class="card">
           <span class="eyebrow">Latest Experiment</span>
-          <h2>最新実験</h2>
-          <p>花束画像1枚とメッセージカード画像1枚を分けた、試験運用ページです。</p>
+          <h2>Latest Experiment</h2>
+          <p>The latest two-image experiment: one bouquet SVG and one message-card SVG.</p>
           <a class="link" href="./experimental/latest/experimental-two-image-ar.html">experimental/latest/experimental-two-image-ar.html</a>
         </article>
 
         <article class="card">
           <span class="eyebrow">Legacy</span>
-          <h2>旧3Dモデル版</h2>
-          <p>初期の GLTF 花束 + メッセージ画像の構成です。比較用に残しています。</p>
+          <h2>Legacy 3D Build</h2>
+          <p>The original GLTF bouquet + image card version kept for comparison.</p>
           <a class="link" href="./production/legacy/legacy-3d-ar.html">production/legacy/legacy-3d-ar.html</a>
         </article>
 
         <article class="card">
           <span class="eyebrow">Debug</span>
-          <h2>デバッグ</h2>
-          <p>AR マーカー確認とカメラ権限確認のページです。</p>
+          <h2>Debug Tools</h2>
+          <p>Marker tracking and camera permission test pages.</p>
           <a class="link" href="./debug/ar-marker-debug.html">debug/ar-marker-debug.html</a><br>
           <a class="link" href="./debug/camera-permission-test.html">debug/camera-permission-test.html</a>
         </article>
 
         <article class="card">
           <span class="eyebrow">Marker</span>
-          <h2>印刷用マーカー</h2>
-          <p>配布時に使う QR 風マーカーです。印刷用の完成版はこちらです。</p>
+          <h2>Printable Marker</h2>
+          <p>The printable QR-like marker for distribution.</p>
           <a class="link" href="./markers/custom-marker-print.png">markers/custom-marker-print.png</a>
         </article>
 
         <article class="card">
           <span class="eyebrow">Docs</span>
-          <h2>補助資料</h2>
-          <p>Codex 用プロンプトと運用メモです。</p>
+          <h2>Docs</h2>
+          <p>Codex prompt notes and supporting project docs.</p>
           <a class="link" href="./docs/codex-cli-prompt.md">docs/codex-cli-prompt.md</a>
         </article>
       </section>
 
       <pre>/
-|-- index.html                              # 入口ページ
-|-- mobile.html                             # 旧URL互換: 最新本番へ移動
-|-- experimental.html                       # 旧URL互換: 最新実験へ移動
-|-- ar-debug.html                           # 旧URL互換: デバッグへ移動
-|-- camera-test.html                        # 旧URL互換: カメラテストへ移動
+|-- index.html
+|-- mobile.html
+|-- experimental.html
+|-- ar-debug.html
+|-- camera-test.html
 |-- production/
-|   |-- current/mobile-card-ar.html         # 今の本格運用
-|   `-- legacy/legacy-3d-ar.html            # 旧3Dモデル版
+|   |-- current/
+|   |   `-- mobile-card-ar.html
+|   `-- legacy/
+|       |-- legacy-3d-ar.html
+|       |-- legacy-bouquet.gltf
+|       `-- legacy-message-card.png
 |-- experimental/
-|   `-- latest/experimental-two-image-ar.html
+|   `-- latest/
+|       |-- experimental-two-image-ar.html
+|       |-- bouquet-svgrepo.svg
+|       `-- message-card-reference.svg
 |-- debug/
 |   |-- ar-marker-debug.html
-|   `-- camera-permission-test.html
+|   |-- camera-permission-test.html
+|   `-- hiro.png
 |-- markers/
 |   |-- custom-marker.patt
 |   |-- custom-marker-source.png
 |   `-- custom-marker-print.png
 |-- docs/
 |   `-- codex-cli-prompt.md
-`-- archive/                                # 退避した旧素材</pre>
+`-- archive/
+    |-- bouquet-blue-reference.svg
+    |-- bouquet-mobile.svg
+    |-- experimental-frame.svg
+    |-- mobile-card-1024.jpg
+    `-- mobile-card.png</pre>
     </main>
   </body>
 </html>
