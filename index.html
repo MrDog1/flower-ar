@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flower Bouquet WebAR</title>
+    <meta
+      name="description"
+      content="Marker-based WebAR bouquet built with A-Frame and AR.js."
+    >
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --panel-bg: rgba(255, 251, 252, 0.88);
+        --panel-border: rgba(212, 88, 125, 0.9);
+        --text-main: #45222c;
+        --text-sub: #885d69;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(255, 217, 228, 0.75), transparent 40%),
+          linear-gradient(180deg, #fff7f9 0%, #ffeef3 100%);
+        color: var(--text-main);
+      }
+
+      .hud {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        padding: 16px;
+        pointer-events: none;
+      }
+
+      .card {
+        max-width: 360px;
+        padding: 14px 16px;
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        background: var(--panel-bg);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 12px 32px rgba(125, 52, 74, 0.14);
+      }
+
+      .card h1 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+      }
+
+      .card p {
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.45;
+        color: var(--text-sub);
+      }
+
+      #status {
+        margin-top: 10px;
+        font-size: 0.86rem;
+      }
+
+      .a-enter-vr-button,
+      .a-orientation-modal {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hud">
+      <div class="card">
+        <h1>Flower Bouquet WebAR</h1>
+        <p>Allow camera access, then point at <code>marker.png</code>.</p>
+        <p id="status">Loading AR scene...</p>
+      </div>
+    </div>
+
+    <a-scene
+      embedded
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+      renderer="colorManagement: true; alpha: true; antialias: true"
+      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; patternRatio: 0.8;"
+    >
+      <a-assets timeout="15000">
+        <img id="messageCard" src="./message.png" alt="Message card">
+        <a-asset-item id="bouquetModel" src="./bouquet.gltf"></a-asset-item>
+      </a-assets>
+
+      <a-marker
+        id="bouquet-marker"
+        type="pattern"
+        url="./marker.patt"
+        smooth="true"
+        smoothCount="8"
+        smoothTolerance="0.01"
+        smoothThreshold="5"
+      >
+        <a-image
+          src="#messageCard"
+          width="1.7"
+          height="0.85"
+          position="0 1.02 0.18"
+          material="alphaTest: 0.01; transparent: true; side: double"
+        ></a-image>
+
+        <a-entity
+          gltf-model="#bouquetModel"
+          position="0 0.42 0"
+          scale="0.4 0.4 0.4"
+        ></a-entity>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      const statusElement = document.getElementById("status");
+      const marker = document.getElementById("bouquet-marker");
+      const modelAsset = document.getElementById("bouquetModel");
+
+      const setStatus = (message) => {
+        statusElement.textContent = message;
+      };
+
+      window.addEventListener("load", () => {
+        setStatus("Camera ready. Point at marker.png to reveal the bouquet.");
+      });
+
+      marker.addEventListener("markerFound", () => {
+        setStatus("Marker detected. Bouquet is anchored to the card.");
+      });
+
+      marker.addEventListener("markerLost", () => {
+        setStatus("Marker lost. Point the camera back at marker.png.");
+      });
+
+      modelAsset.addEventListener("error", () => {
+        setStatus("The bouquet model could not be loaded.");
+      });
+    </script>
+  </body>
+</html>
