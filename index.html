@@ -31,7 +31,7 @@
       vr-mode-ui="enabled: false;"
       embedded
       renderer="logarithmicDepthBuffer: true; precision: medium;"
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; patternRatio: 0.8;"
+      arjs="trackingMethod: best; sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false; patternRatio: 0.8;"
     >
       <a-assets timeout="15000">
         <img id="message-card" src="./message.png" alt="Message card">
@@ -88,6 +88,41 @@
         statusElement.textContent = message;
       };
 
+      const fitArViewport = () => {
+        const video = document.querySelector("video");
+        const drawables = [video, ...document.querySelectorAll("canvas")].filter(Boolean);
+        if (!drawables.length) {
+          return;
+        }
+
+        const sourceAspect =
+          video && video.videoWidth && video.videoHeight
+            ? video.videoWidth / video.videoHeight
+            : 4 / 3;
+
+        let targetWidth = window.innerWidth;
+        let targetHeight = targetWidth / sourceAspect;
+
+        if (targetHeight > window.innerHeight) {
+          targetHeight = window.innerHeight;
+          targetWidth = targetHeight * sourceAspect;
+        }
+
+        const left = (window.innerWidth - targetWidth) / 2;
+        const top = (window.innerHeight - targetHeight) / 2;
+
+        drawables.forEach((element) => {
+          element.style.position = "fixed";
+          element.style.left = `${left}px`;
+          element.style.top = `${top}px`;
+          element.style.width = `${targetWidth}px`;
+          element.style.height = `${targetHeight}px`;
+          element.style.marginLeft = "0";
+          element.style.marginTop = "0";
+          element.style.objectFit = "fill";
+        });
+      };
+
       let videoReadyMessageShown = false;
       const probeVideo = () => {
         const video = document.querySelector("video");
@@ -95,17 +130,23 @@
           return;
         }
 
+        fitArViewport();
+
         if (!videoReadyMessageShown && video.readyState >= 2) {
           videoReadyMessageShown = true;
           setStatus(
-            "AR.js camera is live. Point it at marker.png. If nothing appears, move the marker closer and keep it flat."
+            "AR.js camera is live. Point it at marker.png. If the framing still feels tight, rotate the phone sideways."
           );
         }
       };
 
       window.addEventListener("load", () => {
         setStatus("Requesting AR.js camera...");
+        fitArViewport();
       });
+
+      window.addEventListener("resize", fitArViewport);
+      window.addEventListener("orientationchange", fitArViewport);
 
       window.setInterval(probeVideo, 800);
 
