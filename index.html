@@ -90,8 +90,31 @@
         statusElement.textContent = message;
       };
 
+      const normalizeRootLayout = () => {
+        document.documentElement.style.margin = "0";
+        document.documentElement.style.width = "100%";
+        document.documentElement.style.height = "100%";
+        document.documentElement.style.overflow = "hidden";
+
+        document.body.style.margin = "0";
+        document.body.style.marginLeft = "0px";
+        document.body.style.marginTop = "0px";
+        document.body.style.width = "100vw";
+        document.body.style.height = "100vh";
+        document.body.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.left = "0";
+        document.body.style.top = "0";
+        document.body.style.right = "0";
+        document.body.style.bottom = "0";
+        document.body.style.background = "#000";
+      };
+
       const fitArViewport = () => {
-        const video = document.querySelector("video");
+        normalizeRootLayout();
+
+        const video =
+          document.querySelector("video#arjs-video") || document.querySelector("video");
         const sceneCanvas =
           document.querySelector("canvas.a-canvas") ||
           document.querySelector("canvas[data-aframe-canvas]");
@@ -161,7 +184,7 @@
       window.addEventListener("resize", fitArViewport);
       window.addEventListener("orientationchange", fitArViewport);
 
-      window.setInterval(probeVideo, 800);
+      window.setInterval(probeVideo, 200);
 
       marker.addEventListener("markerFound", () => {
         setStatus("Marker detected.");
