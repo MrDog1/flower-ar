@@ -50,16 +50,17 @@
       >
         <a-image
           src="#message-card"
-          width="1.7"
-          height="0.85"
-          position="0 1.05 0"
+          width="1.18"
+          height="0.59"
+          position="0 0.02 0.3"
+          rotation="-90 0 0"
           material="transparent: true; alphaTest: 0.01"
         ></a-image>
 
         <a-entity
           id="bouquet"
           gltf-model="#bouquet-model"
-          position="0 0.25 0"
+          position="0 0.32 -0.1"
           scale="0.42 0.42 0.42"
         ></a-entity>
 
@@ -99,13 +100,17 @@
           video && video.videoWidth && video.videoHeight
             ? video.videoWidth / video.videoHeight
             : 4 / 3;
+        const viewportAspect = window.innerWidth / window.innerHeight;
 
-        let targetWidth = window.innerWidth;
-        let targetHeight = targetWidth / sourceAspect;
+        let targetWidth;
+        let targetHeight;
 
-        if (targetHeight > window.innerHeight) {
+        if (sourceAspect > viewportAspect) {
           targetHeight = window.innerHeight;
           targetWidth = targetHeight * sourceAspect;
+        } else {
+          targetWidth = window.innerWidth;
+          targetHeight = targetWidth / sourceAspect;
         }
 
         const left = (window.innerWidth - targetWidth) / 2;
@@ -119,7 +124,7 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "fill";
+          element.style.objectFit = "cover";
         });
       };
 
@@ -155,7 +160,7 @@
       });
 
       marker.addEventListener("markerLost", () => {
-        setStatus("Marker lost. Bring marker.png back into view.");
+        setStatus("Marker lost. Bring pattern-marker.png back into view.");
       });
 
       modelAsset.addEventListener("error", () => {

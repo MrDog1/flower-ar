@@ -58,13 +58,17 @@
           video && video.videoWidth && video.videoHeight
             ? video.videoWidth / video.videoHeight
             : 4 / 3;
+        const viewportAspect = window.innerWidth / window.innerHeight;
 
-        let targetWidth = window.innerWidth;
-        let targetHeight = targetWidth / sourceAspect;
+        let targetWidth;
+        let targetHeight;
 
-        if (targetHeight > window.innerHeight) {
+        if (sourceAspect > viewportAspect) {
           targetHeight = window.innerHeight;
           targetWidth = targetHeight * sourceAspect;
+        } else {
+          targetWidth = window.innerWidth;
+          targetHeight = targetWidth / sourceAspect;
         }
 
         const left = (window.innerWidth - targetWidth) / 2;
@@ -78,7 +82,7 @@
           element.style.height = `${targetHeight}px`;
           element.style.marginLeft = "0";
           element.style.marginTop = "0";
-          element.style.objectFit = "fill";
+          element.style.objectFit = "cover";
         });
       };
 
