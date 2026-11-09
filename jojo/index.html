@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -29,6 +29,15 @@
         background: rgba(0, 0, 0, 0.78); color: #f2c94c;
         font: 14px/1.45 'Segoe UI', 'Yu Gothic UI', sans-serif;
       }
+      #bubble {
+        position: fixed; z-index: 25; left: 50%; transform: translateX(-50%);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 44px); width: min(88vw, 460px);
+        padding: 14px 18px; border: 3px solid #f2c94c; border-radius: 14px;
+        background: rgba(0, 0, 0, 0.82); color: #fff; text-align: center;
+        font: italic 700 clamp(17px, 5vw, 24px)/1.4 Georgia, 'Times New Roman', serif;
+        display: none; cursor: pointer;
+      }
+      #bubble small { display: block; margin-top: 6px; font: 11px/1.2 sans-serif; color: #f2c94c; font-style: normal; }
       #credit {
         position: fixed; z-index: 20; left: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
         font: 10px/1.4 sans-serif; color: rgba(255, 255, 255, 0.7); max-width: 90vw;
@@ -38,7 +47,8 @@
       <script src="./giorno.js?v=5"></script>
   </head>
   <body>
-    <div id="status">カメラを起動中… 黒枠のQRマーカーを映してください</div>
+    <div id="status">Starting camera… Point it at the black-framed QR marker</div>
+    <div id="bubble" role="button" aria-label="Hear Giorno's line"><span id="line"></span><small>Tap to hear it</small></div>
     <div id="credit">
       3D model: “Giorno Giovanna &amp; gold experience” by shamus (@consistent_models),
       <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> via
@@ -61,7 +71,7 @@
         <a-entity light="type: ambient; intensity: 1.1"></a-entity>
         <a-entity light="type: directional; intensity: 0.8" position="1 3 2"></a-entity>
         <!-- 1.76m tall model -> ~0.9 marker-units tall, standing on the marker -->
-        <a-entity id="giorno" gltf-model="#giorno-model" scale="0.5 0.5 0.5" position="0 0 0" rotation="0 0 0"
+        <a-entity id="giorno" gltf-model="#giorno-model" scale="0.75 0.75 0.75" position="0 0 0.6" rotation="-70 0 0"
                   giorno-fix></a-entity>
       </a-marker>
 
@@ -71,11 +81,40 @@
     <script>
       const status = document.getElementById("status");
       const marker = document.getElementById("marker");
-      window.addEventListener("camera-init", () => { status.textContent = "黒枠のQRマーカーを映してください"; });
-      window.addEventListener("camera-error", () => { status.textContent = "カメラを使えません。ブラウザのカメラ許可を確認してください"; });
-      marker.addEventListener("markerFound", () => { status.textContent = "ジョルノ登場！"; });
-      marker.addEventListener("markerLost", () => { status.textContent = "黒枠のQRマーカーを映してください"; });
-      document.getElementById("giorno-model").addEventListener("error", () => { status.textContent = "モデルの読み込みに失敗しました"; });
+      // Giorno's line from the fight against Ghiaccio (White Album), Part 5. Unofficial fan translation.
+      const LINE = "Resolve is... to carve a path forward through the dark wasteland!";
+      const bubble = document.getElementById("bubble");
+      const lineEl = document.getElementById("line");
+      let typeTimer = null;
+      const showLine = () => {
+        clearInterval(typeTimer);
+        bubble.style.display = "block";
+        lineEl.textContent = "";
+        let i = 0;
+        typeTimer = setInterval(() => {
+          lineEl.textContent = LINE.slice(0, ++i);
+          if (i >= LINE.length) clearInterval(typeTimer);
+        }, 45);
+      };
+      const hideLine = () => {
+        clearInterval(typeTimer);
+        bubble.style.display = "none";
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+      };
+      const speakLine = () => {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(LINE);
+        u.lang = "en-US"; u.rate = 0.9; u.pitch = 0.8;
+        window.speechSynthesis.speak(u);
+      };
+      bubble.addEventListener("click", speakLine);
+
+      window.addEventListener("camera-init", () => { status.textContent = "Point the camera at the black-framed QR marker"; });
+      window.addEventListener("camera-error", () => { status.textContent = "Camera unavailable. Please allow camera access in your browser settings"; });
+      marker.addEventListener("markerFound", () => { status.textContent = "Giorno appears!"; showLine(); });
+      marker.addEventListener("markerLost", () => { status.textContent = "Point the camera at the black-framed QR marker"; hideLine(); });
+      document.getElementById("giorno-model").addEventListener("error", () => { status.textContent = "Failed to load the 3D model"; });
     </script>
   </body>
 </html>
