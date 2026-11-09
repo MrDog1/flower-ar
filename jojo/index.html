@@ -29,6 +29,16 @@
         background: rgba(0, 0, 0, 0.78); color: #f2c94c;
         font: 14px/1.45 'Segoe UI', 'Yu Gothic UI', sans-serif;
       }
+      #pop {
+        position: fixed; z-index: 24; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 64px);
+        transform: translateX(-50%) rotate(-6deg); display: none; pointer-events: none; white-space: nowrap;
+        font: italic 900 clamp(44px, 15vw, 88px)/1 'Arial Black', Impact, 'Trebuchet MS', sans-serif;
+        background: linear-gradient(180deg, #fff200 10%, #ff2d95 90%); -webkit-background-clip: text; background-clip: text;
+        color: transparent; -webkit-text-stroke: 3px #2b0a4f; paint-order: stroke fill;
+        filter: drop-shadow(5px 5px 0 #00d5ff) drop-shadow(0 0 2px #fff);
+        animation: pop-bounce 0.7s ease-in-out infinite alternate;
+      }
+      @keyframes pop-bounce { from { transform: translateX(-50%) rotate(-6deg) scale(1); } to { transform: translateX(-50%) rotate(4deg) scale(1.12); } }
       #bubble {
         position: fixed; z-index: 25; left: 50%; transform: translateX(-50%);
         bottom: calc(env(safe-area-inset-bottom, 0px) + 44px); width: min(88vw, 460px);
@@ -48,6 +58,7 @@
   </head>
   <body>
     <div id="status">Starting camera… Point it at the black-framed QR marker</div>
+    <div id="pop">Hi! Jun!</div>
     <div id="bubble" role="button" aria-label="Hear Giorno's line"><span id="line"></span><small>Tap to hear it</small></div>
     <div id="credit">
       3D model: “Giorno Giovanna &amp; gold experience” by shamus (@consistent_models),
@@ -67,19 +78,37 @@
                 smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="2">
         <a-entity light="type: ambient; intensity: 1.1"></a-entity>
         <a-entity light="type: directional; intensity: 0.8" position="1 3 2"></a-entity>
-        <!-- 1.76m tall model -> ~0.9 marker-units tall, standing on the marker -->
-        <a-entity id="giorno" scale="0.75 0.75 0.75" position="0 0 0.6" rotation="-70 0 0"
-                  giorno-fix></a-entity>
+        <!-- "stage" lies back toward the viewer (-82deg = almost flat, face up) so the front is easy to see
+             when the phone is held above the marker. Giorno and the photo frame share this tilt. -->
+        <a-entity id="stage" position="0 0 0.6" rotation="-82 0 0" scale="0.75 0.75 0.75">
+          <a-entity id="giorno" giorno-fix></a-entity>
+
+          <!-- Floating gold picture frame holding the cropped face photo, beside Giorno -->
+          <a-entity id="photo-frame" position="0.8 1.2 0.15" rotation="0 -12 0"
+                    animation="property: position; dir: alternate; dur: 1800; easing: easeInOutSine; loop: true; to: 0.8 1.33 0.25">
+            <a-box width="0.8" height="1.0" depth="0.07" material="color: #d4af37; metalness: 0.6; roughness: 0.35"></a-box>
+            <a-plane id="photo" width="0.66" height="0.82" position="0 0 0.04" material="shader: flat"></a-plane>
+          </a-entity>
+
+        </a-entity>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
+      // ===== Joke extras: set to false (or open the page with ?fun=off) to remove them =====
+      const FUN = { photo: true, text: true };
+      if (new URLSearchParams(location.search).get("fun") === "off") { FUN.photo = false; FUN.text = false; }
+      if (FUN.photo) document.getElementById("photo").setAttribute("material", "src", "./images/face.jpg");
+      else document.getElementById("photo-frame").remove();
+      // ======================================================================================
+
       const status = document.getElementById("status");
       const marker = document.getElementById("marker");
       // Giorno's line from the fight against Ghiaccio (White Album), Part 5. Unofficial fan translation.
       const LINE = "Resolve is... to carve a path forward through the dark wasteland!";
+      const popEl = document.getElementById("pop");
       const bubble = document.getElementById("bubble");
       const lineEl = document.getElementById("line");
       let typeTimer = null;
@@ -107,6 +136,7 @@
       };
       bubble.addEventListener("click", speakLine);
 
+
       // The 3D model loads AFTER the camera starts (a-assets would block the camera until the 1.6MB GLB finished).
       const giornoEl = document.getElementById("giorno");
       let modelStarted = false;
@@ -120,8 +150,8 @@
       window.addEventListener("load", () => setTimeout(startModel, 5000)); // fallback if camera-init is never seen
       giornoEl.addEventListener("model-loaded", () => { if (!marker.object3D.visible) status.textContent = "Point the camera at the black-framed QR marker"; });
       window.addEventListener("camera-error", () => { status.textContent = "Camera unavailable. Please allow camera access in your browser settings"; });
-      marker.addEventListener("markerFound", () => { status.textContent = "Giorno appears!"; showLine(); });
-      marker.addEventListener("markerLost", () => { status.textContent = "Point the camera at the black-framed QR marker"; hideLine(); });
+      marker.addEventListener("markerFound", () => { status.textContent = "Giorno appears!"; showLine(); if (FUN.text) popEl.style.display = "block"; });
+      marker.addEventListener("markerLost", () => { status.textContent = "Point the camera at the black-framed QR marker"; hideLine(); popEl.style.display = "none"; });
       giornoEl.addEventListener("model-error", () => { status.textContent = "Failed to load the 3D model"; });
     </script>
   </body>
