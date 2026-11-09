@@ -188,7 +188,32 @@
       marker.addEventListener("markerFound", startModel);
       window.addEventListener("load", () => setTimeout(startModel, 5000)); // fallback if camera-init is never seen
       giornoEl.addEventListener("model-loaded", () => { setLoading(100, "Ready!"); finishLoading(); if (!marker.object3D.visible) status.textContent = "Point the camera at the black-framed QR marker"; });
-      window.addEventListener("camera-error", () => { finishLoading(); status.textContent = "Camera unavailable. Please allow camera access in your browser settings"; });
+      // Right after scanning a QR code, the scanner app may still hold the camera, so the first request can fail
+      // and AR.js never retries. Retry automatically (once), and offer tap-to-retry otherwise.
+      const RETRY_KEY = "jojo-camera-retry";
+      const getRetry = () => { try { return sessionStorage.getItem(RETRY_KEY); } catch (e) { return null; } };
+      const setRetry = (v) => { try { sessionStorage.setItem(RETRY_KEY, v); } catch (e) {} };
+      const offerRetry = (msg) => {
+        status.textContent = msg + " — tap here to retry";
+        status.style.cursor = "pointer";
+        status.onclick = () => { setRetry(""); location.reload(); };
+      };
+      window.addEventListener("camera-error", () => {
+        finishLoading();
+        if (!getRetry()) { setRetry("1"); status.textContent = "Camera busy, retrying…"; setTimeout(() => location.reload(), 1200); }
+        else offerRetry("Camera unavailable. Allow camera access in your browser settings");
+      });
+      window.addEventListener("camera-init", () => setRetry("")); // camera works: reset the retry guard
+      // Camera never started (neither init nor error)? Offer a retry instead of waiting forever.
+      setTimeout(() => { if (!document.querySelector("video") || document.querySelector("video").readyState < 2) { finishLoading(); offerRetry("Camera did not start"); } }, 15000);
+      // Coming back to the page (e.g. after the scanner app closes or the screen is turned back on):
+      // if the camera is not running, reload once to restart it.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") return;
+        const v = document.querySelector("video");
+        const live = v && v.readyState >= 2 && v.srcObject && v.srcObject.getVideoTracks().some((t) => t.readyState === "live");
+        if (!live && !getRetry()) { setRetry("1"); location.reload(); }
+      });
       marker.addEventListener("markerFound", () => { status.textContent = "Giorno appears!"; showLine(); });
       marker.addEventListener("markerLost", () => { status.textContent = "Point the camera at the black-framed QR marker"; hideLine(); });
       giornoEl.addEventListener("model-error", () => { finishLoading(); status.textContent = "Failed to load the 3D model"; });
