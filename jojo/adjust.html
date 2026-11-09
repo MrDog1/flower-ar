@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>3D Model AR Adjuster (位置・角度・サイズ調整ツール)</title>
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <!-- Orbit Controls for easy touch/mouse navigation -->
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-orbit-controls@v1.3.2/dist/aframe-orbit-controls.min.js"></script>
+  <!-- giorno.js (JoJo model fix) -->
+  <script src="./giorno.js?v=7"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #1a1a1a;
+      color: #eee;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    a-scene {
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute !important;
+      inset: 0 !important;
+    }
+
+    /* Floating Control Panel */
+    #panel {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: min(340px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      background: rgba(20, 20, 25, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    #panel.minimized {
+      transform: translateY(-85%);
+      opacity: 0.6;
+    }
+    #panel.minimized:hover {
+      opacity: 1;
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f2c94c;
+      letter-spacing: 0.5px;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .panel-content {
+      padding: 12px 14px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .ctrl-row {
+      display: grid;
+      grid-template-columns: 20px 1fr 60px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .ctrl-row label {
+      font-weight: bold;
+      color: #aaa;
+    }
+    .ctrl-row label.x { color: #ff5252; }
+    .ctrl-row label.y { color: #69f0ae; }
+    .ctrl-row label.z { color: #40c4ff; }
+
+    input[type="range"] {
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background: #444;
+      accent-color: #f2c94c;
+      cursor: pointer;
+    }
+
+    input[type="number"] {
+      background: #111;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      padding: 3px 4px;
+      font-size: 11px;
+      text-align: right;
+      font-family: monospace;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #f2c94c;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      background: #2a2a35;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      background: #3a3a48;
+      border-color: #f2c94c;
+      color: #f2c94c;
+    }
+    .btn.primary {
+      background: #f2c94c;
+      color: #111;
+      border-color: #f2c94c;
+    }
+    .btn.primary:hover {
+      background: #ffe066;
+    }
+
+    /* Output Box */
+    .output-box {
+      background: #0d0d12;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px;
+      font-family: Consolas, monospace;
+      font-size: 10px;
+      color: #a5d6a7;
+      word-break: break-all;
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+
+    /* Guide Badge */
+    #guide-badge {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #bbb;
+      pointer-events: none;
+      z-index: 50;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    #guide-badge strong { color: #f2c94c; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: #69f0ae;
+      border: 1px solid #69f0ae;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    #toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 3D Scene with Orbit Controls -->
+    <a-scene
+      vr-mode-ui="enabled: false"
+      renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true; colorManagement: true;"
+      background="color: #1e1e24"
+    >
+      <a-assets>
+        <a-asset-item id="model-giorno" src="./models/giorno.glb"></a-asset-item>
+        <img id="marker-tex" src="./markers/jojo-marker-print.png">
+      </a-assets>
+
+      <!-- Lights -->
+      <a-entity light="type: ambient; intensity: 1.2"></a-entity>
+      <a-entity light="type: directional; intensity: 0.9" position="2 4 3"></a-entity>
+      <a-entity light="type: directional; intensity: 0.4" position="-2 2 -2"></a-entity>
+
+      <!-- Camera with Orbit Controls (Mouse drag = rotate, Right-drag = pan, Wheel = zoom) -->
+      <a-entity
+        id="camera"
+        camera
+        position="0 1.2 2.2"
+        orbit-controls="
+          target: 0 0.4 0;
+          minDistance: 0.2;
+          maxDistance: 10;
+          initialPosition: 0 1.2 2.2;
+          enableDamping: true;
+          dampingFactor: 0.12;
+        "
+      ></a-entity>
+
+      <!-- Ground / Marker Simulation (1m x 1m AR Marker) -->
+      <a-plane
+        id="marker-ground"
+        src="#marker-tex"
+        position="0 0 0"
+        rotation="-90 0 0"
+        width="1"
+        height="1"
+        material="roughness: 0.8"
+      >
+        <!-- Direction Arrow to indicate Marker Top -->
+        <a-triangle vertex-a="0 0.55 0.01" vertex-b="-0.08 0.45 0.01" vertex-c="0.08 0.45 0.01" color="#ff2d95"></a-triangle>
+      </a-plane>
+
+      <!-- Grid lines around marker -->
+      <a-grid position="0 -0.001 0" width="6" height="6" depth="6" color="#333"></a-grid>
+
+      <!-- The Target 3D Model Container -->
+      <a-entity id="target-model-root" position="0 0 0" rotation="0 0 0" scale="0.75 0.75 0.75">
+        <a-entity id="giorno-entity" gltf-model="#model-giorno" giorno-fix></a-entity>
+      </a-entity>
+
+    </a-scene>
+
+    <!-- Floating Control Panel -->
+    <div id="panel">
+      <div class="panel-header" id="panel-header">
+        <h1>🛠️ 3D Model AR Adjuster</h1>
+        <button class="toggle-btn" id="min-btn">最小化</button>
+      </div>
+
+      <div class="panel-content">
+        <!-- Scale -->
+        <div class="section-title">
+          <span>大きさ (Scale)</span>
+          <span id="scale-val" style="color:#f2c94c; font-family:monospace;">0.75</span>
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <label>S</label>
+            <input type="range" id="scale-slider" min="0.02" max="3.0" step="0.01" value="0.75">
+            <input type="number" id="scale-num" min="0.01" max="10.0" step="0.01" value="0.75">
+          </div>
+        </div>
+
+        <!-- Position -->
+        <div class="section-title">位置 (Position) [X, Y, Z]</div>
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <label class="x">X</label>
+            <input type="range" id="pos-x-slider" min="-2.0" max="2.0" step="0.01" value="0">
+            <input type="number" id="pos-x-num" step="0.01" value="0">
+          </div>
+          <div class="ctrl-row">
+            <label class="y">Y</label>
+            <input type="range" id="pos-y-slider" min="-1.0" max="3.0" step="0.01" value="0">
+            <input type="number" id="pos-y-num" step="0.01" value="0">
+          </div>
+          <div class="ctrl-row">
+            <label class="z">Z</label>
+            <input type="range" id="pos-z-slider" min="-2.0" max="2.0" step="0.01" value="0">
+            <input type="number" id="pos-z-num" step="0.01" value="0">
+          </div>
+        </div>
+
+        <!-- Rotation -->
+        <div class="section-title">角度 (Rotation) [度]</div>
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <label class="x">X</label>
+            <input type="range" id="rot-x-slider" min="-180" max="180" step="1" value="0">
+            <input type="number" id="rot-x-num" step="1" value="0">
+          </div>
+          <div class="ctrl-row">
+            <label class="y">Y</label>
+            <input type="range" id="rot-y-slider" min="-180" max="180" step="1" value="0">
+            <input type="number" id="rot-y-num" step="1" value="0">
+          </div>
+          <div class="ctrl-row">
+            <label class="z">Z</label>
+            <input type="range" id="rot-z-slider" min="-180" max="180" step="1" value="0">
+            <input type="number" id="rot-z-num" step="1" value="0">
+          </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="section-title">クイックプリセット</div>
+        <div class="btn-row">
+          <button class="btn" id="btn-preset-up">直立 (0°)</button>
+          <button class="btn" id="btn-preset-flat">上向き (-90°)</button>
+          <button class="btn" id="btn-preset-tilt">見上げ (-82°)</button>
+          <button class="btn" id="btn-reset">リセット</button>
+        </div>
+
+        <!-- Output HTML snippet -->
+        <div class="section-title">コード出力</div>
+        <div class="output-box" id="output-code">&lt;a-entity position="0 0 0" rotation="0 0 0" scale="0.75 0.75 0.75"&gt;</div>
+        
+        <button class="btn primary" id="btn-copy">📋 設定タグをコピー</button>
+      </div>
+    </div>
+
+    <!-- Usage Guide -->
+    <div id="guide-badge">
+      <strong>🖱️ 操作方法:</strong><br>
+      ・ドラッグ: 視点回転<br>
+      ・右ボタンドラッグ / 2本指: 平行移動<br>
+      ・ホイール / ピンチ: ズーム<br>
+      ※黒い枠がARマーカーの実際の基準位置です
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">クリップボードにコピーしました！</div>
+  </div>
+
+  <script>
+    // Elements
+    const target = document.getElementById("target-model-root");
+    const outputCode = document.getElementById("output-code");
+    const toast = document.getElementById("toast");
+    const panel = document.getElementById("panel");
+    const minBtn = document.getElementById("min-btn");
+    const panelHeader = document.getElementById("panel-header");
+
+    // Position inputs
+    const posXSlider = document.getElementById("pos-x-slider");
+    const posXNum = document.getElementById("pos-x-num");
+    const posYSlider = document.getElementById("pos-y-slider");
+    const posYNum = document.getElementById("pos-y-num");
+    const posZSlider = document.getElementById("pos-z-slider");
+    const posZNum = document.getElementById("pos-z-num");
+
+    // Rotation inputs
+    const rotXSlider = document.getElementById("rot-x-slider");
+    const rotXNum = document.getElementById("rot-x-num");
+    const rotYSlider = document.getElementById("rot-y-slider");
+    const rotYNum = document.getElementById("rot-y-num");
+    const rotZSlider = document.getElementById("rot-z-slider");
+    const rotZNum = document.getElementById("rot-z-num");
+
+    // Scale inputs
+    const scaleSlider = document.getElementById("scale-slider");
+    const scaleNum = document.getElementById("scale-num");
+    const scaleVal = document.getElementById("scale-val");
+
+    // Current State
+    const state = {
+      pos: { x: 0, y: 0, z: 0 },
+      rot: { x: 0, y: 0, z: 0 },
+      scale: 0.75
+    };
+
+    function updateTarget() {
+      // Apply to 3D object
+      target.setAttribute("position", `${state.pos.x} ${state.pos.y} ${state.pos.z}`);
+      target.setAttribute("rotation", `${state.rot.x} ${state.rot.y} ${state.rot.z}`);
+      target.setAttribute("scale", `${state.scale} ${state.scale} ${state.scale}`);
+
+      // Update text
+      scaleVal.textContent = state.scale.toFixed(2);
+      
+      const snippet = `<a-entity id="stage"\n  position="${state.pos.x} ${state.pos.y} ${state.pos.z}"\n  rotation="${state.rot.x} ${state.rot.y} ${state.rot.z}"\n  scale="${state.scale} ${state.scale} ${state.scale}">`;
+      outputCode.textContent = snippet;
+    }
+
+    // Sync helper
+    function bindControl(slider, num, getter, setter, isInt = false) {
+      const apply = (val) => {
+        const parsed = isInt ? parseInt(val, 10) || 0 : parseFloat(val) || 0;
+        slider.value = parsed;
+        num.value = parsed;
+        setter(parsed);
+        updateTarget();
+      };
+      slider.addEventListener("input", (e) => apply(e.target.value));
+      num.addEventListener("input", (e) => apply(e.target.value));
+    }
+
+    // Bind all controls
+    bindControl(posXSlider, posXNum, () => state.pos.x, (v) => state.pos.x = v);
+    bindControl(posYSlider, posYNum, () => state.pos.y, (v) => state.pos.y = v);
+    bindControl(posZSlider, posZNum, () => state.pos.z, (v) => state.pos.z = v);
+
+    bindControl(rotXSlider, rotXNum, () => state.rot.x, (v) => state.rot.x = v, true);
+    bindControl(rotYSlider, rotYNum, () => state.rot.y, (v) => state.rot.y = v, true);
+    bindControl(rotZSlider, rotZNum, () => state.rot.z, (v) => state.rot.z = v, true);
+
+    bindControl(scaleSlider, scaleNum, () => state.scale, (v) => state.scale = v);
+
+    // Sync all inputs from state
+    function syncInputs() {
+      posXSlider.value = posXNum.value = state.pos.x;
+      posYSlider.value = posYNum.value = state.pos.y;
+      posZSlider.value = posZNum.value = state.pos.z;
+
+      rotXSlider.value = rotXNum.value = state.rot.x;
+      rotYSlider.value = rotYNum.value = state.rot.y;
+      rotZSlider.value = rotZNum.value = state.rot.z;
+
+      scaleSlider.value = scaleNum.value = state.scale;
+
+      updateTarget();
+    }
+
+    // Presets
+    document.getElementById("btn-preset-up").addEventListener("click", () => {
+      state.rot.x = 0; state.rot.y = 0; state.rot.z = 0;
+      syncInputs();
+    });
+
+    document.getElementById("btn-preset-flat").addEventListener("click", () => {
+      state.rot.x = -90; state.rot.y = 0; state.rot.z = 0;
+      syncInputs();
+    });
+
+    document.getElementById("btn-preset-tilt").addEventListener("click", () => {
+      // index.html default tilt
+      state.rot.x = -82; state.rot.y = 0; state.rot.z = 0;
+      state.pos.x = 0.135; state.pos.y = 0; state.pos.z = 0.89;
+      state.scale = 0.75;
+      syncInputs();
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      state.pos.x = 0; state.pos.y = 0; state.pos.z = 0;
+      state.rot.x = 0; state.rot.y = 0; state.rot.z = 0;
+      state.scale = 0.5;
+      syncInputs();
+    });
+
+    // Copy to clipboard
+    document.getElementById("btn-copy").addEventListener("click", () => {
+      navigator.clipboard.writeText(outputCode.textContent).then(() => {
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
+      });
+    });
+
+    // Minimize / Expand panel
+    let isMin = false;
+    const toggleMin = () => {
+      isMin = !isMin;
+      panel.classList.toggle("minimized", isMin);
+      minBtn.textContent = isMin ? "展開" : "最小化";
+    };
+    minBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMin();
+    });
+    panelHeader.addEventListener("click", () => {
+      if (isMin) toggleMin();
+    });
+
+    // Init
+    syncInputs();
+  </script>
+</body>
+</html>
+

@@ -3,6 +3,10 @@
 // - re-poses the skeleton (node pose != bind pose in the source file, which scrambled the mesh)
 // - resets Giorno to bind pose (T-pose) and lowers the arms
 // Gold Experience (Object_170) is left untouched.
+// Horizontal offsets in stage units (1 = Giorno's full height / 1.76). Giorno goes right, Gold Experience left,
+// leaving room for Jun's photo frame in between.
+const GIORNO_SHIFT_X = 0.6;   // Giorno ends up at x = +0.6
+const GE_SHIFT_X = -0.665;   // Gold Experience natural x is about -0.285 -> ends up at about -0.95
 AFRAME.registerComponent("giorno-fix", {
   init() {
     // Wait a few frames after load so every parent world matrix is current before re-posing.
@@ -32,7 +36,14 @@ AFRAME.registerComponent("giorno-fix", {
           // pose() was done with the original scale of 1 above; restore the 100 the
           // inverse-bind matrices were authored for so the final size is correct.
           armature.scale.set(100, 100, 100);
+          armature.position.x += GIORNO_SHIFT_X * 100;
           armature.updateMatrixWorld(true);
+        }
+        if (n.isSkinnedMesh && n.name === "Object_170") {
+          n.frustumCulled = false;
+          const geArmature = n.skeleton.bones[0].parent.parent; // _rootJoint_1 -> Object_89 -> Armature001
+          geArmature.position.x += GE_SHIFT_X * 100;
+          geArmature.updateMatrixWorld(true);
         }
       });
     }

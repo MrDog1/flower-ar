@@ -5,7 +5,7 @@ GitHub Pages site hosting marker-based WebAR projects. Each project lives in its
 | Project | Folder | Status |
 |---|---|---|
 | Flower Bouquet | `flower/` | production: `flower/production/current/mobile-card-ar.html` |
-| JoJo Part 5 (Golden Wind) | `jojo/` | WIP, marker generated (`jojo/markers/`) |
+| JoJo Part 5 (Golden Wind) | `jojo/` | production: `jojo/index.html`, adjuster: `jojo/adjust.html` |
 
 Old URLs (`mobile.html`, `experimental.html`, `ar-debug.html`, `camera-test.html`,
 `production/current/...`, `experimental/latest/...`, `debug/...`) are kept as redirect stubs into `flower/`.
