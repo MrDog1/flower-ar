@@ -6,9 +6,7 @@
   <title>3D Model AR Adjuster (位置・角度・サイズ調整ツール)</title>
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <!-- Orbit Controls for easy touch/mouse navigation -->
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-orbit-controls@v1.3.2/dist/aframe-orbit-controls.min.js"></script>
-  <!-- giorno.js (JoJo model fix) -->
+  <!-- giorno.js (JoJo Giorno pose fix) -->
   <script src="./giorno.js?v=7"></script>
 
   <style>
@@ -18,7 +16,7 @@
       height: 100%;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      background: #1a1a1a;
+      background: #1a1a1e;
       color: #eee;
       user-select: none;
       -webkit-user-select: none;
@@ -45,12 +43,12 @@
       width: min(340px, calc(100vw - 24px));
       max-height: calc(100vh - 24px);
       max-height: calc(100dvh - 24px);
-      background: rgba(20, 20, 25, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(20, 20, 26, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
       display: flex;
       flex-direction: column;
       z-index: 100;
@@ -60,7 +58,7 @@
 
     #panel.minimized {
       transform: translateY(-85%);
-      opacity: 0.6;
+      opacity: 0.7;
     }
     #panel.minimized:hover {
       opacity: 1;
@@ -68,7 +66,7 @@
 
     .panel-header {
       padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
@@ -89,7 +87,7 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       color: #fff;
       border-radius: 6px;
-      padding: 2px 8px;
+      padding: 3px 8px;
       font-size: 11px;
       cursor: pointer;
     }
@@ -103,13 +101,34 @@
       gap: 12px;
     }
 
+    /* Model Status Banner */
+    #status-banner {
+      background: rgba(242, 201, 76, 0.15);
+      border: 1px solid rgba(242, 201, 76, 0.4);
+      color: #f2c94c;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    #status-banner.error {
+      background: rgba(255, 82, 82, 0.15);
+      border-color: rgba(255, 82, 82, 0.5);
+      color: #ff5252;
+    }
+    #status-banner.success {
+      background: rgba(105, 240, 174, 0.15);
+      border-color: rgba(105, 240, 174, 0.5);
+      color: #69f0ae;
+    }
+
     .section-title {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #888;
-      margin-top: 4px;
+      color: #aaa;
+      margin-top: 2px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -119,15 +138,15 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       padding: 8px 10px;
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .ctrl-row {
       display: grid;
-      grid-template-columns: 20px 1fr 60px;
+      grid-template-columns: 20px 1fr 62px;
       align-items: center;
       gap: 8px;
       font-size: 12px;
@@ -135,7 +154,6 @@
 
     .ctrl-row label {
       font-weight: bold;
-      color: #aaa;
     }
     .ctrl-row label.x { color: #ff5252; }
     .ctrl-row label.y { color: #69f0ae; }
@@ -143,7 +161,7 @@
 
     input[type="range"] {
       width: 100%;
-      height: 5px;
+      height: 6px;
       border-radius: 3px;
       background: #444;
       accent-color: #f2c94c;
@@ -152,7 +170,7 @@
 
     input[type="number"] {
       background: #111;
-      border: 1px solid #444;
+      border: 1px solid #555;
       border-radius: 4px;
       color: #fff;
       padding: 3px 4px;
@@ -172,18 +190,19 @@
 
     .btn {
       flex: 1;
-      background: #2a2a35;
+      background: #2b2b36;
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 7px 10px;
+      padding: 7px 8px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
+      text-align: center;
     }
     .btn:hover {
-      background: #3a3a48;
+      background: #3c3c4c;
       border-color: #f2c94c;
       color: #f2c94c;
     }
@@ -191,6 +210,8 @@
       background: #f2c94c;
       color: #111;
       border-color: #f2c94c;
+      font-size: 12px;
+      padding: 8px;
     }
     .btn.primary:hover {
       background: #ffe066;
@@ -215,7 +236,7 @@
       position: fixed;
       left: 12px;
       bottom: 12px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       padding: 8px 12px;
       border-radius: 8px;
       font-size: 11px;
@@ -223,7 +244,7 @@
       color: #bbb;
       pointer-events: none;
       z-index: 50;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     #guide-badge strong { color: #f2c94c; }
 
@@ -233,7 +254,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.88);
       color: #69f0ae;
       border: 1px solid #69f0ae;
       padding: 12px 24px;
@@ -248,61 +269,64 @@
     #toast.show {
       opacity: 1;
     }
+
+    /* File input hidden */
+    #file-input { display: none; }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- 3D Scene with Orbit Controls -->
+    <!-- 3D Scene -->
     <a-scene
       vr-mode-ui="enabled: false"
       renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true; colorManagement: true;"
-      background="color: #1e1e24"
+      background="color: #222228"
     >
-      <a-assets>
-        <a-asset-item id="model-giorno" src="./models/giorno.glb"></a-asset-item>
-        <img id="marker-tex" src="./markers/jojo-marker-print.png">
-      </a-assets>
-
       <!-- Lights -->
-      <a-entity light="type: ambient; intensity: 1.2"></a-entity>
-      <a-entity light="type: directional; intensity: 0.9" position="2 4 3"></a-entity>
-      <a-entity light="type: directional; intensity: 0.4" position="-2 2 -2"></a-entity>
+      <a-entity light="type: ambient; intensity: 1.4"></a-entity>
+      <a-entity light="type: directional; intensity: 1.0" position="2 4 3"></a-entity>
+      <a-entity light="type: directional; intensity: 0.6" position="-2 2 -2"></a-entity>
 
-      <!-- Camera with Orbit Controls (Mouse drag = rotate, Right-drag = pan, Wheel = zoom) -->
-      <a-entity
-        id="camera"
-        camera
-        position="0 1.2 2.2"
-        orbit-controls="
-          target: 0 0.4 0;
-          minDistance: 0.2;
-          maxDistance: 10;
-          initialPosition: 0 1.2 2.2;
-          enableDamping: true;
-          dampingFactor: 0.12;
-        "
-      ></a-entity>
+      <!-- Camera Rig (Look around / Rotate) -->
+      <a-entity id="camera-rig" position="0 0.8 2.0">
+        <a-entity id="main-camera" camera look-controls="pointerLockEnabled: false"></a-entity>
+      </a-entity>
 
       <!-- Ground / Marker Simulation (1m x 1m AR Marker) -->
       <a-plane
         id="marker-ground"
-        src="#marker-tex"
         position="0 0 0"
         rotation="-90 0 0"
         width="1"
         height="1"
-        material="roughness: 0.8"
+        material="color: #111; roughness: 0.8"
       >
+        <!-- Marker Frame Border -->
+        <a-plane width="0.84" height="0.84" position="0 0 0.005" material="color: #fff"></a-plane>
+        <a-plane width="0.64" height="0.64" position="0 0 0.01" material="color: #000"></a-plane>
         <!-- Direction Arrow to indicate Marker Top -->
-        <a-triangle vertex-a="0 0.55 0.01" vertex-b="-0.08 0.45 0.01" vertex-c="0.08 0.45 0.01" color="#ff2d95"></a-triangle>
+        <a-triangle vertex-a="0 0.46 0.02" vertex-b="-0.08 0.36 0.02" vertex-c="0.08 0.36 0.02" material="color: #ff2d95; shader: flat"></a-triangle>
       </a-plane>
 
-      <!-- Grid lines around marker -->
-      <a-grid position="0 -0.001 0" width="6" height="6" depth="6" color="#333"></a-grid>
+      <!-- Floor Grid around marker -->
+      <a-grid position="0 -0.002 0" width="8" height="8" depth="8" material="color: #444; opacity: 0.4"></a-grid>
 
-      <!-- The Target 3D Model Container -->
-      <a-entity id="target-model-root" position="0 0 0" rotation="0 0 0" scale="0.75 0.75 0.75">
-        <a-entity id="giorno-entity" gltf-model="#model-giorno" giorno-fix></a-entity>
+      <!-- The Target 3D Model Stage -->
+      <a-entity id="target-model-root" position="0.135 0 0.89" rotation="-82 0 0" scale="0.75 0.75 0.75">
+        <!-- Placeholder Box (Shows immediately while loading) -->
+        <a-box id="loading-box" position="0 0.6 0" width="0.3" height="1.2" depth="0.3" material="color: #f2c94c; wireframe: true"></a-box>
+
+        <!-- The Giorno Model Entity -->
+        <a-entity id="giorno-entity" giorno-fix></a-entity>
+
+        <!-- Optional: Photo Frame Reference -->
+        <a-entity id="photo-frame-preview" position="-0.175 1.0 -0.45" visible="true">
+          <a-box width="1.0" height="0.06" depth="0.06" position="0 0.565 0" material="color: #d4af37"></a-box>
+          <a-box width="1.0" height="0.06" depth="0.06" position="0 -0.565 0" material="color: #d4af37"></a-box>
+          <a-box width="0.06" height="1.06" depth="0.06" position="-0.465 0 0" material="color: #d4af37"></a-box>
+          <a-box width="0.06" height="1.06" depth="0.06" position="0.465 0 0" material="color: #d4af37"></a-box>
+          <a-plane width="0.86" height="1.06" material="color: #333; shader: flat"></a-plane>
+        </a-entity>
       </a-entity>
 
     </a-scene>
@@ -310,11 +334,19 @@
     <!-- Floating Control Panel -->
     <div id="panel">
       <div class="panel-header" id="panel-header">
-        <h1>🛠️ 3D Model AR Adjuster</h1>
+        <h1>🛠️ 3D Model Adjuster</h1>
         <button class="toggle-btn" id="min-btn">最小化</button>
       </div>
 
       <div class="panel-content">
+        <!-- Status / Load File -->
+        <div id="status-banner">モデル読み込み中...</div>
+        <input type="file" id="file-input" accept=".glb,.gltf">
+        <div class="btn-row">
+          <button class="btn" id="btn-file-select">📁 ローカルからGLBを選択</button>
+          <button class="btn" id="btn-reload-model">🔄 再読込</button>
+        </div>
+
         <!-- Scale -->
         <div class="section-title">
           <span>大きさ (Scale)</span>
@@ -323,7 +355,7 @@
         <div class="ctrl-group">
           <div class="ctrl-row">
             <label>S</label>
-            <input type="range" id="scale-slider" min="0.02" max="3.0" step="0.01" value="0.75">
+            <input type="range" id="scale-slider" min="0.05" max="3.0" step="0.01" value="0.75">
             <input type="number" id="scale-num" min="0.01" max="10.0" step="0.01" value="0.75">
           </div>
         </div>
@@ -333,18 +365,18 @@
         <div class="ctrl-group">
           <div class="ctrl-row">
             <label class="x">X</label>
-            <input type="range" id="pos-x-slider" min="-2.0" max="2.0" step="0.01" value="0">
-            <input type="number" id="pos-x-num" step="0.01" value="0">
+            <input type="range" id="pos-x-slider" min="-2.0" max="2.0" step="0.005" value="0.135">
+            <input type="number" id="pos-x-num" step="0.005" value="0.135">
           </div>
           <div class="ctrl-row">
             <label class="y">Y</label>
-            <input type="range" id="pos-y-slider" min="-1.0" max="3.0" step="0.01" value="0">
-            <input type="number" id="pos-y-num" step="0.01" value="0">
+            <input type="range" id="pos-y-slider" min="-1.0" max="2.0" step="0.005" value="0">
+            <input type="number" id="pos-y-num" step="0.005" value="0">
           </div>
           <div class="ctrl-row">
             <label class="z">Z</label>
-            <input type="range" id="pos-z-slider" min="-2.0" max="2.0" step="0.01" value="0">
-            <input type="number" id="pos-z-num" step="0.01" value="0">
+            <input type="range" id="pos-z-slider" min="-2.0" max="2.0" step="0.005" value="0.89">
+            <input type="number" id="pos-z-num" step="0.005" value="0.89">
           </div>
         </div>
 
@@ -353,8 +385,8 @@
         <div class="ctrl-group">
           <div class="ctrl-row">
             <label class="x">X</label>
-            <input type="range" id="rot-x-slider" min="-180" max="180" step="1" value="0">
-            <input type="number" id="rot-x-num" step="1" value="0">
+            <input type="range" id="rot-x-slider" min="-180" max="180" step="1" value="-82">
+            <input type="number" id="rot-x-num" step="1" value="-82">
           </div>
           <div class="ctrl-row">
             <label class="y">Y</label>
@@ -369,17 +401,29 @@
         </div>
 
         <!-- Presets -->
-        <div class="section-title">クイックプリセット</div>
+        <div class="section-title">プリセット / 表示切替</div>
         <div class="btn-row">
+          <button class="btn" id="btn-preset-tilt">見上げ (-82°)</button>
           <button class="btn" id="btn-preset-up">直立 (0°)</button>
           <button class="btn" id="btn-preset-flat">上向き (-90°)</button>
-          <button class="btn" id="btn-preset-tilt">見上げ (-82°)</button>
-          <button class="btn" id="btn-reset">リセット</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btn-toggle-frame">額縁表示: ON</button>
+          <button class="btn" id="btn-reset">初期化</button>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="section-title">カメラ視点</div>
+        <div class="btn-row">
+          <button class="btn" id="cam-front">正面</button>
+          <button class="btn" id="cam-top">真上</button>
+          <button class="btn" id="cam-side">横</button>
+          <button class="btn" id="cam-far">引き</button>
         </div>
 
         <!-- Output HTML snippet -->
         <div class="section-title">コード出力</div>
-        <div class="output-box" id="output-code">&lt;a-entity position="0 0 0" rotation="0 0 0" scale="0.75 0.75 0.75"&gt;</div>
+        <div class="output-box" id="output-code">&lt;a-entity id="stage" position="0.135 0 0.89" rotation="-82 0 0" scale="0.75 0.75 0.75"&gt;</div>
         
         <button class="btn primary" id="btn-copy">📋 設定タグをコピー</button>
       </div>
@@ -388,10 +432,9 @@
     <!-- Usage Guide -->
     <div id="guide-badge">
       <strong>🖱️ 操作方法:</strong><br>
-      ・ドラッグ: 視点回転<br>
-      ・右ボタンドラッグ / 2本指: 平行移動<br>
-      ・ホイール / ピンチ: ズーム<br>
-      ※黒い枠がARマーカーの実際の基準位置です
+      ・画面ドラッグ: 視点回転<br>
+      ・下部ボタン「カメラ視点」で視点変更<br>
+      ・中央の四角がARマーカーの原点です
     </div>
 
     <!-- Toast Notification -->
@@ -399,15 +442,20 @@
   </div>
 
   <script>
-    // Elements
     const target = document.getElementById("target-model-root");
+    const giornoEl = document.getElementById("giorno-entity");
+    const loadingBox = document.getElementById("loading-box");
+    const statusBanner = document.getElementById("status-banner");
     const outputCode = document.getElementById("output-code");
     const toast = document.getElementById("toast");
     const panel = document.getElementById("panel");
     const minBtn = document.getElementById("min-btn");
     const panelHeader = document.getElementById("panel-header");
+    const fileInput = document.getElementById("file-input");
+    const photoFrame = document.getElementById("photo-frame-preview");
+    const camRig = document.getElementById("camera-rig");
 
-    // Position inputs
+    // Inputs
     const posXSlider = document.getElementById("pos-x-slider");
     const posXNum = document.getElementById("pos-x-num");
     const posYSlider = document.getElementById("pos-y-slider");
@@ -415,7 +463,6 @@
     const posZSlider = document.getElementById("pos-z-slider");
     const posZNum = document.getElementById("pos-z-num");
 
-    // Rotation inputs
     const rotXSlider = document.getElementById("rot-x-slider");
     const rotXNum = document.getElementById("rot-x-num");
     const rotYSlider = document.getElementById("rot-y-slider");
@@ -423,32 +470,28 @@
     const rotZSlider = document.getElementById("rot-z-slider");
     const rotZNum = document.getElementById("rot-z-num");
 
-    // Scale inputs
     const scaleSlider = document.getElementById("scale-slider");
     const scaleNum = document.getElementById("scale-num");
     const scaleVal = document.getElementById("scale-val");
 
-    // Current State
+    // State (default to current index.html stage settings)
     const state = {
-      pos: { x: 0, y: 0, z: 0 },
-      rot: { x: 0, y: 0, z: 0 },
+      pos: { x: 0.135, y: 0, z: 0.89 },
+      rot: { x: -82, y: 0, z: 0 },
       scale: 0.75
     };
 
     function updateTarget() {
-      // Apply to 3D object
       target.setAttribute("position", `${state.pos.x} ${state.pos.y} ${state.pos.z}`);
       target.setAttribute("rotation", `${state.rot.x} ${state.rot.y} ${state.rot.z}`);
       target.setAttribute("scale", `${state.scale} ${state.scale} ${state.scale}`);
 
-      // Update text
       scaleVal.textContent = state.scale.toFixed(2);
       
       const snippet = `<a-entity id="stage"\n  position="${state.pos.x} ${state.pos.y} ${state.pos.z}"\n  rotation="${state.rot.x} ${state.rot.y} ${state.rot.z}"\n  scale="${state.scale} ${state.scale} ${state.scale}">`;
       outputCode.textContent = snippet;
     }
 
-    // Sync helper
     function bindControl(slider, num, getter, setter, isInt = false) {
       const apply = (val) => {
         const parsed = isInt ? parseInt(val, 10) || 0 : parseFloat(val) || 0;
@@ -461,7 +504,6 @@
       num.addEventListener("input", (e) => apply(e.target.value));
     }
 
-    // Bind all controls
     bindControl(posXSlider, posXNum, () => state.pos.x, (v) => state.pos.x = v);
     bindControl(posYSlider, posYNum, () => state.pos.y, (v) => state.pos.y = v);
     bindControl(posZSlider, posZNum, () => state.pos.z, (v) => state.pos.z = v);
@@ -472,7 +514,6 @@
 
     bindControl(scaleSlider, scaleNum, () => state.scale, (v) => state.scale = v);
 
-    // Sync all inputs from state
     function syncInputs() {
       posXSlider.value = posXNum.value = state.pos.x;
       posYSlider.value = posYNum.value = state.pos.y;
@@ -483,34 +524,106 @@
       rotZSlider.value = rotZNum.value = state.rot.z;
 
       scaleSlider.value = scaleNum.value = state.scale;
-
       updateTarget();
     }
 
+    // Model Loading logic
+    function setStatus(msg, type = "info") {
+      statusBanner.textContent = msg;
+      statusBanner.className = type;
+    }
+
+    function loadModelPath(path) {
+      setStatus("モデル読み込み中... (" + path + ")", "info");
+      loadingBox.setAttribute("visible", "true");
+      
+      // Directly set gltf-model on entity
+      giornoEl.setAttribute("gltf-model", path);
+    }
+
+    giornoEl.addEventListener("model-loaded", () => {
+      setStatus("✅ モデル読み込み成功！", "success");
+      loadingBox.setAttribute("visible", "false");
+    });
+
+    giornoEl.addEventListener("model-error", (e) => {
+      console.error("GLTF load error:", e);
+      if (location.protocol === "file:") {
+        setStatus("⚠️ file:// 直接開きのためブラウザ制限でブロックされました。「ローカルからGLBを選択」ボタンを押して giorno.glb を選択してください", "error");
+      } else {
+        setStatus("❌ モデル読み込みエラー。ファイルパスを確認してください", "error");
+      }
+    });
+
+    // Local file selector (works even on file:/// protocol!)
+    document.getElementById("btn-file-select").addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const blobUrl = URL.createObjectURL(file);
+        setStatus("ファイル読込中: " + file.name, "info");
+        loadModelPath(blobUrl);
+      }
+    });
+
+    document.getElementById("btn-reload-model").addEventListener("click", () => {
+      loadModelPath("./models/giorno.glb?t=" + Date.now());
+    });
+
     // Presets
-    document.getElementById("btn-preset-up").addEventListener("click", () => {
-      state.rot.x = 0; state.rot.y = 0; state.rot.z = 0;
-      syncInputs();
-    });
-
-    document.getElementById("btn-preset-flat").addEventListener("click", () => {
-      state.rot.x = -90; state.rot.y = 0; state.rot.z = 0;
-      syncInputs();
-    });
-
     document.getElementById("btn-preset-tilt").addEventListener("click", () => {
-      // index.html default tilt
-      state.rot.x = -82; state.rot.y = 0; state.rot.z = 0;
-      state.pos.x = 0.135; state.pos.y = 0; state.pos.z = 0.89;
+      state.pos = { x: 0.135, y: 0, z: 0.89 };
+      state.rot = { x: -82, y: 0, z: 0 };
       state.scale = 0.75;
       syncInputs();
     });
 
+    document.getElementById("btn-preset-up").addEventListener("click", () => {
+      state.pos = { x: 0, y: 0, z: 0 };
+      state.rot = { x: 0, y: 0, z: 0 };
+      syncInputs();
+    });
+
+    document.getElementById("btn-preset-flat").addEventListener("click", () => {
+      state.pos = { x: 0, y: 0, z: 0 };
+      state.rot = { x: -90, y: 0, z: 0 };
+      syncInputs();
+    });
+
     document.getElementById("btn-reset").addEventListener("click", () => {
-      state.pos.x = 0; state.pos.y = 0; state.pos.z = 0;
-      state.rot.x = 0; state.rot.y = 0; state.rot.z = 0;
+      state.pos = { x: 0, y: 0, z: 0 };
+      state.rot = { x: 0, y: 0, z: 0 };
       state.scale = 0.5;
       syncInputs();
+    });
+
+    // Toggle photo frame
+    let showFrame = true;
+    document.getElementById("btn-toggle-frame").addEventListener("click", (e) => {
+      showFrame = !showFrame;
+      photoFrame.setAttribute("visible", showFrame);
+      e.target.textContent = showFrame ? "額縁表示: ON" : "額縁表示: OFF";
+    });
+
+    // Camera presets
+    document.getElementById("cam-front").addEventListener("click", () => {
+      camRig.setAttribute("position", "0 0.8 2.0");
+      camRig.setAttribute("rotation", "0 0 0");
+    });
+    document.getElementById("cam-top").addEventListener("click", () => {
+      camRig.setAttribute("position", "0 3.0 0.1");
+      camRig.setAttribute("rotation", "-80 0 0");
+    });
+    document.getElementById("cam-side").addEventListener("click", () => {
+      camRig.setAttribute("position", "2.2 0.8 0.5");
+      camRig.setAttribute("rotation", "0 70 0");
+    });
+    document.getElementById("cam-far").addEventListener("click", () => {
+      camRig.setAttribute("position", "0 1.5 3.5");
+      camRig.setAttribute("rotation", "-15 0 0");
     });
 
     // Copy to clipboard
@@ -536,9 +649,11 @@
       if (isMin) toggleMin();
     });
 
-    // Init
+    // Initial load
     syncInputs();
+    window.addEventListener("DOMContentLoaded", () => {
+      loadModelPath("./models/giorno.glb");
+    });
   </script>
 </body>
 </html>
-
