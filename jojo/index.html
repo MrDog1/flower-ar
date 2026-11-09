@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>JoJo AR - Giorno (Golden Wind)</title>
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <script defer src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script defer src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
     <style>
       html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
       /* Fixed body creates a stacking context so AR.js's z-index:-2 camera <video> stays above the black body background. */
@@ -22,6 +22,18 @@
       video { z-index: -2 !important; background: #000; }
       canvas.a-canvas { z-index: -1 !important; }
       a-scene { position: fixed !important; inset: 0 !important; }
+      #loading {
+        position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 18px; background: #000; color: #f2c94c;
+        font: italic 900 clamp(30px, 9vw, 52px)/1.1 'Arial Black', Impact, sans-serif; letter-spacing: 1px;
+        transition: opacity 0.4s;
+      }
+      #loading.done { opacity: 0; pointer-events: none; }
+      #loading .dots::after { content: ""; animation: dots 1.2s steps(4, end) infinite; }
+      @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
+      #loading .sub { font: 14px/1.4 sans-serif; font-style: normal; font-weight: 400; color: #fff; opacity: 0.85; }
+      #loading .bar { width: min(70vw, 320px); height: 10px; border: 2px solid #f2c94c; border-radius: 8px; overflow: hidden; }
+      #loading .bar > i { display: block; height: 100%; width: 8%; background: linear-gradient(90deg, #fff200, #ff2d95); transition: width 0.5s; }
       #status {
         position: fixed; z-index: 20; left: 12px; right: 12px;
         top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -43,9 +55,14 @@
       }
       #credit a { color: inherit; }
     </style>
-      <script src="./giorno.js?v=5"></script>
+      <script defer src="./giorno.js?v=5"></script>
   </head>
   <body>
+    <div id="loading">
+      <div>Now loading<span class="dots"></span></div>
+      <div class="bar"><i id="loading-bar"></i></div>
+      <div class="sub" id="loading-sub">Downloading AR engine…</div>
+    </div>
     <div id="status">Starting camera… Point it at the black-framed QR marker</div>
     <div id="bubble"><span id="line"></span></div>
     <div id="credit">
@@ -92,6 +109,7 @@
     </a-scene>
 
     <script>
+      document.addEventListener("DOMContentLoaded", () => { // deferred scripts (A-Frame, AR.js) have run by now
       // ===== Joke extras: set to false (or open the page with ?fun=off) to remove them =====
       const FUN = { photo: true, text: true };
       if (new URLSearchParams(location.search).get("fun") === "off") { FUN.photo = false; FUN.text = false; }
@@ -118,6 +136,20 @@
       else document.getElementById("pop-text").remove();
       // ======================================================================================
 
+      const loadingEl = document.getElementById("loading");
+      const setLoading = (pct, text) => {
+        document.getElementById("loading-bar").style.width = pct + "%";
+        document.getElementById("loading-sub").textContent = text;
+      };
+      let loadingDone = false;
+      const finishLoading = () => {
+        if (loadingDone) return;
+        loadingDone = true;
+        loadingEl.classList.add("done");
+        setTimeout(() => loadingEl.remove(), 500);
+      };
+      setLoading(40, "Starting camera…");
+      setTimeout(finishLoading, 30000); // never trap the user behind the loading screen
       const status = document.getElementById("status");
       const marker = document.getElementById("marker");
       // Giorno's line from the fight against Ghiaccio (White Album), Part 5. Unofficial fan translation.
@@ -149,14 +181,15 @@
         modelStarted = true;
         giornoEl.setAttribute("gltf-model", "./models/giorno.glb");
       };
-      window.addEventListener("camera-init", () => { status.textContent = "Camera ready. Loading Giorno…"; startModel(); });
+      window.addEventListener("camera-init", () => { status.textContent = "Camera ready. Loading Giorno…"; setLoading(70, "Loading Giorno…"); startModel(); });
       marker.addEventListener("markerFound", startModel);
       window.addEventListener("load", () => setTimeout(startModel, 5000)); // fallback if camera-init is never seen
-      giornoEl.addEventListener("model-loaded", () => { if (!marker.object3D.visible) status.textContent = "Point the camera at the black-framed QR marker"; });
-      window.addEventListener("camera-error", () => { status.textContent = "Camera unavailable. Please allow camera access in your browser settings"; });
+      giornoEl.addEventListener("model-loaded", () => { setLoading(100, "Ready!"); finishLoading(); if (!marker.object3D.visible) status.textContent = "Point the camera at the black-framed QR marker"; });
+      window.addEventListener("camera-error", () => { finishLoading(); status.textContent = "Camera unavailable. Please allow camera access in your browser settings"; });
       marker.addEventListener("markerFound", () => { status.textContent = "Giorno appears!"; showLine(); });
       marker.addEventListener("markerLost", () => { status.textContent = "Point the camera at the black-framed QR marker"; hideLine(); });
-      giornoEl.addEventListener("model-error", () => { status.textContent = "Failed to load the 3D model"; });
+      giornoEl.addEventListener("model-error", () => { finishLoading(); status.textContent = "Failed to load the 3D model"; });
+      });
     </script>
   </body>
 </html>
